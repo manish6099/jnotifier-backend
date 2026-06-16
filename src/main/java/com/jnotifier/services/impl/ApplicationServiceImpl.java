@@ -9,12 +9,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.jnotifier.entity.Application;
 import com.jnotifier.exception.GenericException;
 import com.jnotifier.payload.request.ApplicationRequest;
 import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.repository.ApplicationRepository;
 import com.jnotifier.services.ApplicationService;
+import com.jnotifier.services.FileStorageService;
 
 @Service
 @Transactional
@@ -23,14 +26,24 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Autowired
   private ApplicationRepository applicationRepository;
 
+  @Autowired
+  private FileStorageService fileStorageService;
+
   @Override
-  public Application save(ApplicationRequest request) {
+  public Application save(ApplicationRequest request, MultipartFile file) {
+    if (file == null || file.isEmpty()) {
+      throw new GenericException(ApiResponse.error("INVALID_FILE", "PDF file is required on creation."));
+    }
+    String pdfFilename = fileStorageService.storeFile(file);
+
     Application application = new Application();
     application.setTitle(request.getTitle());
     application.setTags(request.getTags());
     application.setApplicationStartDate(request.getApplicationStartDate());
     application.setApplicationEndDate(request.getApplicationEndDate());
     application.setShortDescription(request.getShortDescription());
+    application.setApplyLink(request.getApplyLink());
+    application.setNotificationPdfFilename(pdfFilename);
     if (request.getStatus() != null) {
       application.setStatus(request.getStatus());
     } else {
@@ -40,13 +53,20 @@ public class ApplicationServiceImpl implements ApplicationService {
   }
 
   @Override
-  public Application update(Long id, ApplicationRequest request) {
+  public Application update(Long id, ApplicationRequest request, MultipartFile file) {
     Application application = findById(id);
     application.setTitle(request.getTitle());
     application.setTags(request.getTags());
     application.setApplicationStartDate(request.getApplicationStartDate());
     application.setApplicationEndDate(request.getApplicationEndDate());
     application.setShortDescription(request.getShortDescription());
+    application.setApplyLink(request.getApplyLink());
+
+    if (file != null && !file.isEmpty()) {
+      String pdfFilename = fileStorageService.storeFile(file);
+      application.setNotificationPdfFilename(pdfFilename);
+    }
+
     if (request.getStatus() != null) {
       application.setStatus(request.getStatus());
     }
@@ -70,7 +90,8 @@ public class ApplicationServiceImpl implements ApplicationService {
   @Transactional(readOnly = true)
   public Application findById(Long id) {
     return applicationRepository.findById(id)
-        .orElseThrow(() -> new GenericException(ApiResponse.error("RESOURCE_NOT_FOUND", "Application not found with id: " + id)));
+        .orElseThrow(() -> new GenericException(
+            ApiResponse.error("RESOURCE_NOT_FOUND", "Application not found with id: " + id)));
   }
 
   @Override

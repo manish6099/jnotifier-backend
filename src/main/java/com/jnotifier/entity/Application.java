@@ -32,13 +32,22 @@ public class Application extends BaseEntity {
   private String shortDescription;
 
   @NotNull
+  @Column(name = "apply_link")
+  private String applyLink;
+
+  @NotNull
+  @Column(name = "notification_pdf_filename", length = 100)
+  private String notificationPdfFilename;
+
+  @NotNull
   @Column(name = "status", nullable = false)
   private Boolean status = true;
 
   public Application() {
   }
 
-  public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, Boolean status) {
+  public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate,
+      String shortDescription, Boolean status) {
     this.title = title;
     this.tags = tags;
     this.applicationStartDate = applicationStartDate;
@@ -94,4 +103,21 @@ public class Application extends BaseEntity {
   public void setStatus(Boolean status) {
     this.status = status;
   }
+
+  public String getApplyLink() {
+    return applyLink;
+  }
+
+  public void setApplyLink(String applyLink) {
+    this.applyLink = applyLink;
+  }
+
+  public String getNotificationPdfFilename() {
+    return notificationPdfFilename;
+  }
+
+  public void setNotificationPdfFilename(String notificationPdfFilename) {
+    this.notificationPdfFilename = notificationPdfFilename;
+  }
+
 }

@@ -4,9 +4,11 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.data.domain.Page;
@@ -33,18 +35,22 @@ public class AdminJobController {
 
   // --- Job Application Endpoints ---
 
-  @PostMapping("/applications")
+  @PostMapping(value = "/applications", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @RequestBody ApplicationRequest request) {
-    Application saved = applicationService.save(request);
+  public ResponseEntity<ApiResponse<Application>> createApplication(
+      @RequestPart("application") @Valid ApplicationRequest request,
+      @RequestPart("file") MultipartFile file) {
+    Application saved = applicationService.save(request, file);
     return ResponseEntity.ok(ApiResponse.success(saved));
   }
 
-  @PutMapping("/applications/{id}")
+  @PutMapping(value = "/applications/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Application>> updateApplication(@PathVariable Long id,
-      @Valid @RequestBody ApplicationRequest request) {
-    Application updated = applicationService.update(id, request);
+  public ResponseEntity<ApiResponse<Application>> updateApplication(
+      @PathVariable Long id,
+      @RequestPart("application") @Valid ApplicationRequest request,
+      @RequestPart(value = "file", required = false) MultipartFile file) {
+    Application updated = applicationService.update(id, request, file);
     return ResponseEntity.ok(ApiResponse.success(updated));
   }
 

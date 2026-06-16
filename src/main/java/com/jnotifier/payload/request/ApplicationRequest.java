@@ -63,6 +63,17 @@ public class ApplicationRequest {
     this.shortDescription = shortDescription;
   }
 
+  @NotBlank
+  private String applyLink;
+
+  public String getApplyLink() {
+    return applyLink;
+  }
+
+  public void setApplyLink(String applyLink) {
+    this.applyLink = applyLink;
+  }
+
   public Boolean getStatus() {
     return status;
   }

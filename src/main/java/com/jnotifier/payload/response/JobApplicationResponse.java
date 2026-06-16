@@ -8,16 +8,20 @@ public class JobApplicationResponse {
   private LocalDate applicationStartDate;
   private LocalDate applicationEndDate;
   private String shortDescription;
+  private String applyLink;
+  private String notificationPdfFilename;
 
   public JobApplicationResponse() {
   }
 
-  public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription) {
+  public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String applyLink, String notificationPdfFilename) {
     this.title = title;
     this.tags = tags;
     this.applicationStartDate = applicationStartDate;
     this.applicationEndDate = applicationEndDate;
     this.shortDescription = shortDescription;
+    this.applyLink = applyLink;
+    this.notificationPdfFilename = notificationPdfFilename;
   }
 
   public String getTitle() {
@@ -34,6 +38,22 @@ public class JobApplicationResponse {
 
   public void setTags(String tags) {
     this.tags = tags;
+  }
+
+  public String getApplyLink() {
+    return applyLink;
+  }
+
+  public void setApplyLink(String applyLink) {
+    this.applyLink = applyLink;
+  }
+
+  public String getNotificationPdfFilename() {
+    return notificationPdfFilename;
+  }
+
+  public void setNotificationPdfFilename(String notificationPdfFilename) {
+    this.notificationPdfFilename = notificationPdfFilename;
   }
 
   public LocalDate getApplicationStartDate() {
