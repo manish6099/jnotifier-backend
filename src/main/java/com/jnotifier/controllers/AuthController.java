@@ -234,6 +234,7 @@ public class AuthController {
         if (cleanName.isEmpty()) {
             cleanName = "user";
         }
+
         String generatedUsername = cleanName + "_" + System.currentTimeMillis();
 
         // Create new user's account
