@@ -1,6 +1,8 @@
 package com.jnotifier.controllers;
 
 import java.util.List;
+
+import com.jnotifier.app.JNotifierConstants;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,96 +23,96 @@ import com.jnotifier.services.CategoryService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping(JNotifierConstants.API_BASE_URL + "/admin")
 @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")
 public class AdminJobController {
 
-  @Autowired
-  private ApplicationService applicationService;
+    @Autowired
+    private ApplicationService applicationService;
 
-  @Autowired
-  private CategoryService categoryService;
+    @Autowired
+    private CategoryService categoryService;
 
-  // --- Job Application Endpoints ---
+    // --- Job Application Endpoints ---
 
-  @PostMapping("/applications")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @RequestBody ApplicationRequest request) {
-    Application saved = applicationService.save(request);
-    return ResponseEntity.ok(ApiResponse.success(saved));
-  }
+    @PostMapping("/applications")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @RequestBody ApplicationRequest request) {
+        Application saved = applicationService.save(request);
+        return ResponseEntity.ok(ApiResponse.success(saved));
+    }
 
-  @PutMapping("/applications/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Application>> updateApplication(@PathVariable Long id,
-      @Valid @RequestBody ApplicationRequest request) {
-    Application updated = applicationService.update(id, request);
-    return ResponseEntity.ok(ApiResponse.success(updated));
-  }
+    @PutMapping("/applications/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Application>> updateApplication(@PathVariable Long id,
+                                                                      @Valid @RequestBody ApplicationRequest request) {
+        Application updated = applicationService.update(id, request);
+        return ResponseEntity.ok(ApiResponse.success(updated));
+    }
 
-  @PatchMapping("/applications/{id}/status")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Application>> updateApplicationStatus(@PathVariable Long id,
-      @RequestParam("active") Boolean active) {
-    Application updated = applicationService.updateStatus(id, active);
-    return ResponseEntity.ok(ApiResponse.success(updated));
-  }
+    @PatchMapping("/applications/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Application>> updateApplicationStatus(@PathVariable Long id,
+                                                                            @RequestParam("active") Boolean active) {
+        Application updated = applicationService.updateStatus(id, active);
+        return ResponseEntity.ok(ApiResponse.success(updated));
+    }
 
-  @GetMapping("/applications")
-  public ResponseEntity<ApiResponse<PaginatedResponse<Application>>> getAllApplications(
-      Authentication authentication,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size) {
-    
-    boolean isSuperAdmin = authentication.getAuthorities().stream()
-        .anyMatch(r -> r.getAuthority().equals("ROLE_SUPERADMIN"));
-    String username = authentication.getName();
-    
-    Page<Application> applicationsPage = applicationService.findApplicationsForUser(username, isSuperAdmin, page, size);
-    
-    return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(applicationsPage)));
-  }
+    @GetMapping("/applications")
+    public ResponseEntity<ApiResponse<PaginatedResponse<Application>>> getAllApplications(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-  @GetMapping("/applications/{id}")
-  public ResponseEntity<ApiResponse<Application>> getApplicationById(@PathVariable Long id) {
-    Application application = applicationService.findById(id);
-    return ResponseEntity.ok(ApiResponse.success(application));
-  }
+        boolean isSuperAdmin = authentication.getAuthorities().stream()
+                .anyMatch(r -> r.getAuthority().equals("ROLE_SUPERADMIN"));
+        String username = authentication.getName();
 
-  // --- Category Endpoints ---
+        Page<Application> applicationsPage = applicationService.findApplicationsForUser(username, isSuperAdmin, page, size);
 
-  @PostMapping("/categories")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Category>> createCategory(@Valid @RequestBody CategoryRequest request) {
-    Category saved = categoryService.save(request);
-    return ResponseEntity.ok(ApiResponse.success(saved));
-  }
+        return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(applicationsPage)));
+    }
 
-  @PutMapping("/categories/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable Long id,
-      @Valid @RequestBody CategoryRequest request) {
-    Category updated = categoryService.update(id, request);
-    return ResponseEntity.ok(ApiResponse.success(updated));
-  }
+    @GetMapping("/applications/{id}")
+    public ResponseEntity<ApiResponse<Application>> getApplicationById(@PathVariable Long id) {
+        Application application = applicationService.findById(id);
+        return ResponseEntity.ok(ApiResponse.success(application));
+    }
 
-  @PatchMapping("/categories/{id}/status")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<ApiResponse<Category>> updateCategoryStatus(@PathVariable Long id,
-      @RequestParam("active") Boolean active) {
-    Category updated = categoryService.updateStatus(id, active);
-    return ResponseEntity.ok(ApiResponse.success(updated));
-  }
+    // --- Category Endpoints ---
 
-  @GetMapping("/categories")
-  public ResponseEntity<ApiResponse<List<Category>>> getAllCategories() {
-    List<Category> categories = categoryService.findAll();
-    return ResponseEntity.ok(ApiResponse.success(categories));
-  }
+    @PostMapping("/categories")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Category>> createCategory(@Valid @RequestBody CategoryRequest request) {
+        Category saved = categoryService.save(request);
+        return ResponseEntity.ok(ApiResponse.success(saved));
+    }
 
-  @GetMapping("/categories/{id}")
-  public ResponseEntity<ApiResponse<Category>> getCategoryById(@PathVariable Long id) {
-    Category category = categoryService.findById(id);
-    return ResponseEntity.ok(ApiResponse.success(category));
-  }
+    @PutMapping("/categories/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Category>> updateCategory(@PathVariable Long id,
+                                                                @Valid @RequestBody CategoryRequest request) {
+        Category updated = categoryService.update(id, request);
+        return ResponseEntity.ok(ApiResponse.success(updated));
+    }
+
+    @PatchMapping("/categories/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Category>> updateCategoryStatus(@PathVariable Long id,
+                                                                      @RequestParam("active") Boolean active) {
+        Category updated = categoryService.updateStatus(id, active);
+        return ResponseEntity.ok(ApiResponse.success(updated));
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<ApiResponse<List<Category>>> getAllCategories() {
+        List<Category> categories = categoryService.findAll();
+        return ResponseEntity.ok(ApiResponse.success(categories));
+    }
+
+    @GetMapping("/categories/{id}")
+    public ResponseEntity<ApiResponse<Category>> getCategoryById(@PathVariable Long id) {
+        Category category = categoryService.findById(id);
+        return ResponseEntity.ok(ApiResponse.success(category));
+    }
 }

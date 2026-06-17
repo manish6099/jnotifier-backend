@@ -1,0 +1,28 @@
+2026-06-17T16:06:11.753+05:30  INFO 41892 --- [main] com.jnotifier.JNotifierApplication       : Starting JNotifierApplication using Java 17.0.12 with PID 41892 (D:\workspace\gaurav\jnotifier-backend\target\classes started by C-Gaurav in D:\workspace\gaurav\jnotifier-backend)
+2026-06-17T16:06:11.759+05:30  INFO 41892 --- [main] com.jnotifier.JNotifierApplication       : The following 1 profile is active: "local"
+2026-06-17T16:06:20.670+05:30  INFO 41892 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-17T16:06:20.760+05:30  INFO 41892 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 82 ms. Found 6 JPA repository interfaces.
+2026-06-17T16:06:21.511+05:30  INFO 41892 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 7789 (http)
+2026-06-17T16:06:21.522+05:30  INFO 41892 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-17T16:06:21.523+05:30  INFO 41892 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.8]
+2026-06-17T16:06:21.661+05:30  INFO 41892 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-06-17T16:06:21.661+05:30  INFO 41892 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 9747 ms
+2026-06-17T16:06:21.823+05:30  INFO 41892 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-17T16:06:21.887+05:30  INFO 41892 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.2.2.Final
+2026-06-17T16:06:21.890+05:30  INFO 41892 --- [main] org.hibernate.cfg.Environment            : HHH000406: Using bytecode reflection optimizer
+2026-06-17T16:06:22.021+05:30  INFO 41892 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2026-06-17T16:06:22.192+05:30  INFO 41892 --- [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-17T16:06:22.208+05:30  INFO 41892 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-17T16:06:22.618+05:30  INFO 41892 --- [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@65d9e72a
+2026-06-17T16:06:22.620+05:30  INFO 41892 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-17T16:06:22.650+05:30  INFO 41892 --- [main] org.hibernate.orm.dialect                : HHH035001: Using dialect: org.hibernate.dialect.PostgreSQLDialect, version: org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$DialectResolutionInfoImpl@1a785fd5
+2026-06-17T16:06:22.940+05:30  INFO 41892 --- [main] o.h.b.i.BytecodeProviderInitiator        : HHH000021: Bytecode provider name : bytebuddy
+2026-06-17T16:06:23.758+05:30  INFO 41892 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-06-17T16:06:24.004+05:30  INFO 41892 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-17T16:06:24.768+05:30  WARN 41892 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-17T16:06:25.056+05:30  INFO 41892 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@92775a3, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2512155e, org.springframework.security.web.context.SecurityContextHolderFilter@7207f3c2, org.springframework.security.web.header.HeaderWriterFilter@272485a6, org.springframework.security.web.authentication.logout.LogoutFilter@68e62b3b, com.jnotifier.security.jwt.AuthTokenFilter@242ebd3b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@57063e08, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6afb240d, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@ef59aee, org.springframework.security.web.session.SessionManagementFilter@1cb73a92, org.springframework.security.web.access.ExceptionTranslationFilter@445c693, org.springframework.security.web.access.intercept.AuthorizationFilter@6f986031]
+2026-06-17T16:06:25.420+05:30  INFO 41892 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 7789 (http) with context path ''
+2026-06-17T16:06:25.431+05:30  INFO 41892 --- [main] com.jnotifier.JNotifierApplication       : Started JNotifierApplication in 14.73 seconds (process running for 15.567)
+2026-06-17T16:10:08.341+05:30  INFO 41892 --- [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-17T16:10:08.343+05:30  INFO 41892 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-17T16:10:08.358+05:30  INFO 41892 --- [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
