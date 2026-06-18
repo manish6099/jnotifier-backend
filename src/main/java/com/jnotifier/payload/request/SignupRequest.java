@@ -36,14 +36,14 @@ public class SignupRequest {
   private String captchaId;
 
   @NotBlank
-  private String captchaValue;
+  private String captcha;
 
-  public String getFullname() {
+  public String getFullName() {
     return fullName;
   }
 
-  public void setFullname(String fullname) {
-    this.fullName = fullname;
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
   }
 
   public String getEmail() {
@@ -102,12 +102,12 @@ public class SignupRequest {
     this.captchaId = captchaId;
   }
 
-  public String getCaptchaValue() {
-    return captchaValue;
+  public String getCaptcha() {
+    return captcha;
   }
 
-  public void setCaptchaValue(String captchaValue) {
-    this.captchaValue = captchaValue;
+  public void setCaptchaValue(String captcha) {
+    this.captcha = captcha;
   }
 
   public String getCategory() {return category;}

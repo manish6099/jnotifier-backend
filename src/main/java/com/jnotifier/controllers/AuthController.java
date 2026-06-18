@@ -190,7 +190,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<MessageResponse>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
         String correctCaptcha = captchaStore.get(signUpRequest.getCaptchaId());
-        if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(signUpRequest.getCaptchaValue())) {
+        if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(signUpRequest.getCaptcha())) {
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponse.error("INVALID_CAPTCHA", "Captcha is incorrect or expired."));
@@ -230,7 +230,7 @@ public class AuthController {
         }
 
         // Generate unique system-level username containing timestamp & name alphabets
-        String cleanName = signUpRequest.getFullname().toLowerCase().replaceAll("[^a-zA-Z]", "");
+        String cleanName = signUpRequest.getFullName().toLowerCase().replaceAll("[^a-zA-Z]", "");
         if (cleanName.isEmpty()) {
             cleanName = "user";
         }
@@ -239,7 +239,7 @@ public class AuthController {
 
         // Create new user's account
         User user = new User(
-                signUpRequest.getFullname(),
+                signUpRequest.getFullName(),
                 signUpRequest.getEmail(),
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getDob(),
