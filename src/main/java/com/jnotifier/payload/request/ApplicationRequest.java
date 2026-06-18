@@ -1,12 +1,12 @@
 package com.jnotifier.payload.request;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class ApplicationRequest {
-
   @NotBlank
   private String title;
 
@@ -17,6 +17,9 @@ public class ApplicationRequest {
 
   @NotNull
   private LocalDate applicationEndDate;
+
+  @Size(max = 100)
+  private String advNo;
 
   @Size(max = 100)
   private String shortDescription;
@@ -69,5 +72,13 @@ public class ApplicationRequest {
 
   public void setStatus(Boolean status) {
     this.status = status;
+  }
+
+  public String getAdvNo() {
+    return advNo;
+  }
+
+  public void setAdvNo(String advNo) {
+    this.advNo = advNo;
   }
 }

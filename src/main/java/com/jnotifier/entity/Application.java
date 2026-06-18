@@ -6,92 +6,105 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "applications")
 public class Application extends BaseEntity {
 
-  @NotBlank
-  @Column(name = "title", nullable = false)
-  private String title;
+    @NotBlank
+    @Column(name = "title", nullable = false)
+    private String title;
 
-  @Column(name = "tags")
-  private String tags;
+    @Column(name = "tags")
+    private String tags;
 
-  @NotNull
-  @Column(name = "application_start_date", nullable = false)
-  private LocalDate applicationStartDate;
+    @Column(name = "advertisement_no", nullable = true, columnDefinition = "VARCHAR(100)")
+    private String advertisementNo;
 
-  @NotNull
-  @Column(name = "application_end_date", nullable = false)
-  private LocalDate applicationEndDate;
+    @NotNull
+    @Column(name = "application_start_date", nullable = false)
+    private LocalDate applicationStartDate;
 
-  @Size(max = 100)
-  @Column(name = "short_description", length = 100)
-  private String shortDescription;
+    @NotNull
+    @Column(name = "application_end_date", nullable = false)
+    private LocalDate applicationEndDate;
 
-  @NotNull
-  @Column(name = "status", nullable = false)
-  private Boolean status = true;
+    @Size(max = 100)
+    @Column(name = "short_description", length = 100)
+    private String shortDescription;
 
-  public Application() {
-  }
+    @NotNull
+    @Column(name = "status", nullable = false)
+    private Boolean status = true;
 
-  public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, Boolean status) {
-    this.title = title;
-    this.tags = tags;
-    this.applicationStartDate = applicationStartDate;
-    this.applicationEndDate = applicationEndDate;
-    this.shortDescription = shortDescription;
-    this.status = status;
-  }
+    public Application() {
+    }
 
-  public String getTitle() {
-    return title;
-  }
+    public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, Boolean status, String advNo) {
+        this.title = title;
+        this.tags = tags;
+        this.applicationStartDate = applicationStartDate;
+        this.applicationEndDate = applicationEndDate;
+        this.shortDescription = shortDescription;
+        this.status = status;
+        this.advertisementNo = advNo;
+    }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public String getTags() {
-    return tags;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public void setTags(String tags) {
-    this.tags = tags;
-  }
+    public String getTags() {
+        return tags;
+    }
 
-  public LocalDate getApplicationStartDate() {
-    return applicationStartDate;
-  }
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 
-  public void setApplicationStartDate(LocalDate applicationStartDate) {
-    this.applicationStartDate = applicationStartDate;
-  }
+    public LocalDate getApplicationStartDate() {
+        return applicationStartDate;
+    }
 
-  public LocalDate getApplicationEndDate() {
-    return applicationEndDate;
-  }
+    public void setApplicationStartDate(LocalDate applicationStartDate) {
+        this.applicationStartDate = applicationStartDate;
+    }
 
-  public void setApplicationEndDate(LocalDate applicationEndDate) {
-    this.applicationEndDate = applicationEndDate;
-  }
+    public LocalDate getApplicationEndDate() {
+        return applicationEndDate;
+    }
 
-  public String getShortDescription() {
-    return shortDescription;
-  }
+    public void setApplicationEndDate(LocalDate applicationEndDate) {
+        this.applicationEndDate = applicationEndDate;
+    }
 
-  public void setShortDescription(String shortDescription) {
-    this.shortDescription = shortDescription;
-  }
+    public String getShortDescription() {
+        return shortDescription;
+    }
 
-  public Boolean getStatus() {
-    return status;
-  }
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
 
-  public void setStatus(Boolean status) {
-    this.status = status;
-  }
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public String getAdvertisementNo() {
+        return advertisementNo;
+    }
+
+    public void setAdvertisementNo(String advertisementNo) {
+        this.advertisementNo = advertisementNo;
+    }
 }
