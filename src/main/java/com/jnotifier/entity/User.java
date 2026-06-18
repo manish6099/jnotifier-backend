@@ -1,6 +1,7 @@
 package com.jnotifier.entity;
 
 import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,120 +10,132 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "users", 
-    uniqueConstraints = { 
-      @UniqueConstraint(columnNames = "username"),
-      @UniqueConstraint(columnNames = "email") 
-    })
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "username"),
+                @UniqueConstraint(columnNames = "email")
+        })
 public class User extends BaseEntity {
 
-  @NotBlank
-  @Size(max = 50)
-  private String username;
+    @NotBlank
+    @Size(max = 50)
+    private String username;
 
-  @NotBlank
-  @Size(max = 100)
-  @Column(name = "fullname")
-  private String fullname;
+    @NotBlank
+    @Size(max = 100)
+    @Column(name = "fullname")
+    private String fullname;
 
-  @NotBlank
-  @Size(max = 50)
-  @Email
-  private String email;
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
 
-  @NotBlank
-  @Size(max = 120)
-  private String password;
+    @NotBlank
+    @Size(max = 120)
+    private String password;
 
-  @Column(name = "mobile")
-  private String mobile;
+    @Column(name = "mobile")
+    private String mobile;
 
-  @NotNull
-  @Column(name = "dob")
-  private LocalDate dob;
+    @NotNull
+    @Column(name = "dob")
+    private LocalDate dob;
 
-  @NotBlank
-  @Pattern(regexp = "^(M|F|T)$", message = "Gender must be M, F, or T")
-  @Column(name = "gender", length = 1)
-  private String gender;
+    @NotBlank
+    @Column(name = "gender", columnDefinition = "VARCHAR(1)")
+    private String gender;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "role_id")
-  private Role role;
+    @NotBlank
+    @Column(name = "category", columnDefinition = "VARCHAR(3)")
+    private String category;
 
-  public User() {
-  }
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    private Role role;
 
-  public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile) {
-    this.fullname = fullname;
-    this.email = email;
-    this.password = password;
-    this.dob = dob;
-    this.gender = gender;
-    this.mobile = mobile;
-  }
+    public User() {
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, String category) {
+        this.fullname = fullname;
+        this.email = email;
+        this.password = password;
+        this.dob = dob;
+        this.gender = gender;
+        this.mobile = mobile;
+        this.category = category;
+    }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public String getFullname() {
-    return fullname;
-  }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  public void setFullname(String fullname) {
-    this.fullname = fullname;
-  }
+    public String getFullname() {
+        return fullname;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public String getMobile() {
-    return mobile;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public void setMobile(String mobile) {
-    this.mobile = mobile;
-  }
+    public String getMobile() {
+        return mobile;
+    }
 
-  public LocalDate getDob() {
-    return dob;
-  }
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 
-  public void setDob(LocalDate dob) {
-    this.dob = dob;
-  }
+    public LocalDate getDob() {
+        return dob;
+    }
 
-  public String getGender() {
-    return gender;
-  }
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
+    }
 
-  public void setGender(String gender) {
-    this.gender = gender;
-  }
+    public String getGender() {
+        return gender;
+    }
 
-  public Role getRole() {
-    return role;
-  }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
-  public void setRole(Role role) {
-    this.role = role;
-  }
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 }

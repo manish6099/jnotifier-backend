@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 public class SignupRequest {
   @NotBlank
   @Size(max = 100)
-  private String fullname;
+  private String fullName;
 
   @NotBlank
   @Size(max = 50)
@@ -26,6 +26,10 @@ public class SignupRequest {
   @Pattern(regexp = "^(M|F|T)$", message = "Gender must be M, F, or T")
   private String gender;
 
+  @NotBlank
+  @Pattern(regexp = "^(GEN|EWS|OBC|SC|ST)$", message = "Category must be gen, ews, obc, sc or st.")
+  private String category;
+
   private String role;
 
   @NotBlank
@@ -35,11 +39,11 @@ public class SignupRequest {
   private String captchaValue;
 
   public String getFullname() {
-    return fullname;
+    return fullName;
   }
 
   public void setFullname(String fullname) {
-    this.fullname = fullname;
+    this.fullName = fullname;
   }
 
   public String getEmail() {
@@ -106,4 +110,7 @@ public class SignupRequest {
     this.captchaValue = captchaValue;
   }
 
+  public String getCategory() {return category;}
+
+  public void setCategory(String category) {this.category = category;}
 }

@@ -244,7 +244,8 @@ public class AuthController {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getDob(),
                 signUpRequest.getGender(),
-                signUpRequest.getMobile());
+                signUpRequest.getMobile(), signUpRequest.getCategory());
+
         user.setUsername(generatedUsername);
         user.setRole(userRole);
         userRepository.save(user);
