@@ -97,8 +97,6 @@ public class AuthController {
         String captchaCode = generateRandomText();
         captchaStore.put(captchaId, captchaCode);
 
-        logger.info("Captcha Code :: {}", captchaCode);
-
         String captchaImageBase64 = generateCaptchaImage(captchaCode);
 
         Map<String, String> response = new HashMap<>();
@@ -187,7 +185,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<MessageResponse>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<ApiResponse<Object>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 
         String correctCaptcha = captchaStore.get(signUpRequest.getCaptchaId());
         if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(signUpRequest.getCaptcha())) {
@@ -244,14 +242,19 @@ public class AuthController {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getDob(),
                 signUpRequest.getGender(),
-                signUpRequest.getMobile(), signUpRequest.getCategory());
+                signUpRequest.getMobile(), signUpRequest.getCategory(), signUpRequest.getIsPwd());
 
         user.setUsername(generatedUsername);
         user.setRole(userRole);
         userRepository.save(user);
 
+        Map<String, String> reply = new HashMap<>();
+
+        reply.put("message", "User successfully registered!");
+        reply.put("username", generatedUsername);
+
         return ResponseEntity.ok(ApiResponse
-                .success(new MessageResponse("User registered successfully with generated username: " + generatedUsername)));
+                .success(reply));
     }
 
     @PostMapping("/refreshtoken")

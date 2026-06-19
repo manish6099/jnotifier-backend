@@ -1,116 +1,131 @@
 package com.jnotifier.payload.request;
 
 import java.time.LocalDate;
+
 import jakarta.validation.constraints.*;
 
 public class SignupRequest {
-  @NotBlank
-  @Size(max = 100)
-  private String fullName;
+    @NotBlank
+    @Size(max = 100)
+    private String fullName;
 
-  @NotBlank
-  @Size(max = 50)
-  @Email
-  private String email;
+    @NotBlank
+    @Size(max = 50)
+    @Email
+    private String email;
 
-  @NotBlank
-  @Size(min = 6, max = 40)
-  private String password;
+    @NotBlank
+    @Size(min = 6, max = 40)
+    private String password;
 
-  private String mobile;
+    private String mobile;
 
-  @NotNull
-  private LocalDate dob;
+    @NotNull
+    private LocalDate dob;
 
-  @NotBlank
-  @Pattern(regexp = "^(M|F|T)$", message = "Gender must be M, F, or T")
-  private String gender;
+    @NotBlank
+    @Pattern(regexp = "^(M|F|T)$", message = "Gender must be M, F, or T")
+    private String gender;
 
-  @NotBlank
-  @Pattern(regexp = "^(GEN|EWS|OBC|SC|ST)$", message = "Category must be gen, ews, obc, sc or st.")
-  private String category;
+    @NotBlank
+    @Pattern(regexp = "^(GEN|EWS|OBC|SC|ST)$", message = "Category must be gen, ews, obc, sc or st.")
+    private String category;
 
-  private String role;
+    private Boolean isPwd;
 
-  @NotBlank
-  private String captchaId;
+    private String role;
 
-  @NotBlank
-  private String captcha;
+    @NotBlank
+    private String captchaId;
 
-  public String getFullName() {
-    return fullName;
-  }
+    @NotBlank
+    private String captcha;
 
-  public void setFullName(String fullName) {
-    this.fullName = fullName;
-  }
+    public String getFullName() {
+        return fullName;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+    public String getPassword() {
+        return password;
+    }
 
-  public String getMobile() {
-    return mobile;
-  }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-  public void setMobile(String mobile) {
-    this.mobile = mobile;
-  }
+    public String getMobile() {
+        return mobile;
+    }
 
-  public LocalDate getDob() {
-    return dob;
-  }
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 
-  public void setDob(LocalDate dob) {
-    this.dob = dob;
-  }
+    public LocalDate getDob() {
+        return dob;
+    }
 
-  public String getGender() {
-    return gender;
-  }
+    public void setDob(LocalDate dob) {
+        this.dob = dob;
+    }
 
-  public void setGender(String gender) {
-    this.gender = gender;
-  }
+    public String getGender() {
+        return gender;
+    }
 
-  public String getRole() {
-    return role;
-  }
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
 
-  public void setRole(String role) {
-    this.role = role;
-  }
+    public String getRole() {
+        return role;
+    }
 
-  public String getCaptchaId() {
-    return captchaId;
-  }
+    public void setRole(String role) {
+        this.role = role;
+    }
 
-  public void setCaptchaId(String captchaId) {
-    this.captchaId = captchaId;
-  }
+    public String getCaptchaId() {
+        return captchaId;
+    }
 
-  public String getCaptcha() {
-    return captcha;
-  }
+    public void setCaptchaId(String captchaId) {
+        this.captchaId = captchaId;
+    }
 
-  public void setCaptchaValue(String captcha) {
-    this.captcha = captcha;
-  }
+    public String getCaptcha() {
+        return captcha;
+    }
 
-  public String getCategory() {return category;}
+    public void setCaptchaValue(String captcha) {
+        this.captcha = captcha;
+    }
 
-  public void setCategory(String category) {this.category = category;}
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Boolean getIsPwd() {
+        return isPwd;
+    }
+
+    public void setIsPwd(Boolean isPwd) {
+        this.isPwd = isPwd;
+    }
 }

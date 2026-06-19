@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -54,10 +53,13 @@ public class User extends BaseEntity {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @Column(name = "is_pwd")
+    private Boolean isPwd;
+
     public User() {
     }
 
-    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, String category) {
+    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, String category, Boolean isPwd) {
         this.fullname = fullname;
         this.email = email;
         this.password = password;
@@ -65,6 +67,7 @@ public class User extends BaseEntity {
         this.gender = gender;
         this.mobile = mobile;
         this.category = category;
+        this.isPwd = isPwd;
     }
 
     public String getUsername() {
@@ -137,5 +140,13 @@ public class User extends BaseEntity {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public Boolean getIsPwd() {
+        return isPwd;
+    }
+
+    public void setIsPwd(Boolean isPwd) {
+        this.isPwd = isPwd;
     }
 }
