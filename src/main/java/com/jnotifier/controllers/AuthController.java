@@ -6,17 +6,19 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.ImageIO;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jnotifier.app.JNotifierConstants;
+import com.jnotifier.app.JNotifierEnums;
+import com.jnotifier.payload.request.*;
+import com.jnotifier.payload.response.ServiceReply;
+import com.jnotifier.services.impl.RedisService;
+import com.jnotifier.services.impl.VerifyService;
 import jakarta.validation.Valid;
 
 import org.slf4j.Logger;
@@ -39,12 +41,7 @@ import com.jnotifier.entity.ERole;
 import com.jnotifier.entity.Role;
 import com.jnotifier.entity.User;
 import com.jnotifier.entity.RefreshToken;
-import com.jnotifier.payload.request.LoginRequest;
-import com.jnotifier.payload.request.SignupRequest;
-import com.jnotifier.payload.request.TokenRefreshRequest;
-import com.jnotifier.payload.request.OtpRequest;
 import com.jnotifier.payload.response.JwtResponse;
-import com.jnotifier.payload.response.MessageResponse;
 import com.jnotifier.payload.response.TokenRefreshResponse;
 import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.repository.RoleRepository;
@@ -54,7 +51,7 @@ import com.jnotifier.services.RefreshTokenService;
 import com.jnotifier.exception.GenericException;
 import com.jnotifier.exception.TokenRefreshException;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+
 @RestController
 @RequestMapping(JNotifierConstants.API_BASE_URL + "/auth")
 public class AuthController {
@@ -67,7 +64,7 @@ public class AuthController {
     // Stores username -> otpCode
     private static final Map<String, String> otpStore = new ConcurrentHashMap<>();
 
-    @Value("${jnotifier.app.default-otp-enabled:true}")
+    @Value("${jnotifier.app.default-otp-enabled}")
     private boolean defaultOtpEnabled;
 
     @Value("${jnotifier.app.jwtRefreshExpirationMs}")
@@ -91,6 +88,15 @@ public class AuthController {
     @Autowired
     RefreshTokenService refreshTokenService;
 
+    @Autowired
+    private RedisService redisService;
+
+    @Value("${notification.support.email}")
+    private String notificationSupportEmail;
+
+    @Autowired
+    private VerifyService verifyService;
+
     @GetMapping("/captcha")
     public ResponseEntity<ApiResponse<Map<String, String>>> getCaptcha() {
         String captchaId = UUID.randomUUID().toString();
@@ -108,7 +114,9 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<Map<String, String>>> authenticateUser(
-            @Valid @RequestBody LoginRequest loginRequest) {
+            @Valid @RequestBody LoginRequest loginRequest) throws JsonProcessingException {
+        Map<String, Object> welcomeNotificationMsg = new HashMap<>();
+        Map<String, String> welcomeNotificationContent = new HashMap<>();
         // 1. Validate Captcha
         String correctCaptcha = captchaStore.get(loginRequest.getCaptchaId());
         if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(loginRequest.getCaptchaValue())) {
@@ -123,11 +131,10 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         // 3. Generate OTP
-        String otpCode;
-        if (defaultOtpEnabled) {
-            otpCode = "123456";
-        } else {
-            otpCode = String.format("%06d", new Random().nextInt(999999));
+        String otpCode = "123456";
+
+        if (!defaultOtpEnabled) {
+            otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
 
         otpStore.put(loginRequest.getUsername(), otpCode);
@@ -144,12 +151,61 @@ public class AuthController {
         data.put("status", "OTP_REQUIRED");
         data.put("message", "OTP verification code has been generated. Please verify to complete sign-in.");
 
+        //Creating content object for welcome notification
+        welcomeNotificationContent.put("userName", user.getUsername());
+        welcomeNotificationContent.put("name", user.getFullname());
+        welcomeNotificationContent.put("subject", "Request for new OTP reg.");
+        welcomeNotificationContent.put("email", user.getEmail());
+        welcomeNotificationContent.put("supportEmail", notificationSupportEmail);
+        welcomeNotificationContent.put("otp", otpCode);
+
+        //Creating actual welcome notification payload.
+        welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
+        welcomeNotificationMsg.put("content", welcomeNotificationContent);
+
+        redisService.publishOTPNotification(welcomeNotificationMsg);
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<ApiResponse<Object>> resendOtp(@Valid @RequestBody ResendOTPRequest resendOTPRequest) throws JsonProcessingException {
+        Map<String, String> data = new HashMap<>();
+        Map<String, Object> welcomeNotificationMsg = new HashMap<>();
+        Map<String, String> welcomeNotificationContent = new HashMap<>();
+        User user = userRepository.findByUsername(resendOTPRequest.getUsername()).orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
+        String otpCode = "123456";
+
+        if (!defaultOtpEnabled) {
+            otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
+        }
+
+        otpStore.put(resendOTPRequest.getUsername(), otpCode);
+        data.put("message", "OTP sent successfully");
+
+        //Creating content object for welcome notification
+        welcomeNotificationContent.put("userName", user.getUsername());
+        welcomeNotificationContent.put("name", user.getFullname());
+        welcomeNotificationContent.put("subject", "Request for new OTP reg.");
+        welcomeNotificationContent.put("email", user.getEmail());
+        welcomeNotificationContent.put("supportEmail", notificationSupportEmail);
+        welcomeNotificationContent.put("otp", otpCode);
+
+        //Creating actual welcome notification payload.
+        welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
+        welcomeNotificationMsg.put("content", welcomeNotificationContent);
+
+        redisService.publishOTPNotification(welcomeNotificationMsg);
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity<ApiResponse<JwtResponse>> verifyOtp(@Valid @RequestBody OtpRequest otpRequest) {
+    public ResponseEntity<ApiResponse<Object>> verifyOtp(@Valid @RequestBody OtpRequest otpRequest) {
         String correctOtp = otpStore.get(otpRequest.getUsername());
+        String verificationType = otpRequest.getVerificationType();
+        ServiceReply serviceReply;
+
+        System.out.println(correctOtp + " " + otpRequest.getOtpCode());
+
         if (correctOtp == null || !correctOtp.equals(otpRequest.getOtpCode())) {
             return ResponseEntity
                     .badRequest()
@@ -157,36 +213,33 @@ public class AuthController {
         }
         otpStore.remove(otpRequest.getUsername());
 
-        User user = userRepository.findByUsername(otpRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found: " + otpRequest.getUsername()));
+        JNotifierEnums verificationTypeEnum = JNotifierEnums.fromString(verificationType);
 
-        String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+        switch (verificationTypeEnum) {
+            case LOGIN:
+                serviceReply = verifyService.login(otpRequest.getUsername());
+                ResponseCookie refCookie = (ResponseCookie) serviceReply.getReply().get("refCookie");
+                ResponseCookie accessCookie = (ResponseCookie) serviceReply.getReply().get("accessCookie");
+                JwtResponse body = (JwtResponse) serviceReply.getReply().get("jwtResponse");
 
-        List<String> roles = List.of(user.getRole().getName().name());
+                return ResponseEntity.status(serviceReply.getHttpStatusCode())
+                        .header(HttpHeaders.SET_COOKIE, refCookie.toString())
+                        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                        .body(ApiResponse.success(body));
 
-        JwtResponse jwtResponse = new JwtResponse(jwt,
-                refreshToken.getToken(),
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                roles);
+            case EMAIL_VERIFY:
+                serviceReply = verifyService.verifyEmail(otpRequest.getUsername());
+                Object response = serviceReply.getReply();
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(refreshTokenDurationMs / 1000)
-                .build();
+                return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(response));
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(ApiResponse.success(jwtResponse));
+            default:
+                return ResponseEntity.badRequest().body(ApiResponse.error("INVALID_VERIFICATION_TYPE", "Invalid verification type."));
+        }
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Object>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-
+    public ResponseEntity<ApiResponse<Object>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws JsonProcessingException {
         String correctCaptcha = captchaStore.get(signUpRequest.getCaptchaId());
         if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(signUpRequest.getCaptcha())) {
             return ResponseEntity
@@ -242,22 +295,46 @@ public class AuthController {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getDob(),
                 signUpRequest.getGender(),
-                signUpRequest.getMobile(), signUpRequest.getCategory(), signUpRequest.getIsPwd());
+                signUpRequest.getMobile(), signUpRequest.getCategory(), signUpRequest.getIsPwd(), false);
 
         user.setUsername(generatedUsername);
         user.setRole(userRole);
         userRepository.save(user);
 
         Map<String, String> reply = new HashMap<>();
+        Map<String, Object> welcomeNotificationMsg = new HashMap<>();
+        Map<String, String> welcomeNotificationContent = new HashMap<>();
+        String otpCode = "123456";
+
+        if (!defaultOtpEnabled) {
+            otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
+        }
+        otpStore.put(generatedUsername, otpCode);
+
+        //Creating content object for welcome notification
+        welcomeNotificationContent.put("userName", user.getUsername());
+        welcomeNotificationContent.put("name", user.getFullname());
+        welcomeNotificationContent.put("subject", "Verification of newly created account reg.");
+        welcomeNotificationContent.put("email", user.getEmail());
+        welcomeNotificationContent.put("supportEmail", notificationSupportEmail);
+        welcomeNotificationContent.put("gender", user.getGender());
+        welcomeNotificationContent.put("category", user.getCategory());
+        welcomeNotificationContent.put("dob", user.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        welcomeNotificationContent.put("otp", otpCode);
+
+        //Creating actual welcome notification payload.
+        welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
+        welcomeNotificationMsg.put("content", welcomeNotificationContent);
 
         reply.put("message", "User successfully registered!");
         reply.put("username", generatedUsername);
 
+        redisService.publishWelcomeNotification(welcomeNotificationMsg);
         return ResponseEntity.ok(ApiResponse
                 .success(reply));
     }
 
-    @PostMapping("/refreshtoken")
+    @PostMapping("/refresh-token")
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshtoken(
             @CookieValue(name = "refreshToken", required = false) String cookieRefreshToken,
             @Valid @RequestBody(required = false) TokenRefreshRequest request) {
@@ -284,15 +361,25 @@ public class AuthController {
                 .orElseThrow(() -> new TokenRefreshException(finalToken,
                         "Refresh token is not in database!"));
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", finalToken)
+        ResponseCookie refCookie = ResponseCookie.from("refreshToken", finalToken)
                 .httpOnly(true)
                 .secure(true)
-                .path(JNotifierConstants.API_BASE_URL)
+                .sameSite("None")
+                .path("/")
+                .maxAge(refreshTokenDurationMs / 1000)
+                .build();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenRefreshResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
                 .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .body(ApiResponse.success(tokenRefreshResponse));
     }
 

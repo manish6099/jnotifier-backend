@@ -16,7 +16,6 @@ import com.jnotifier.entity.Notification;
 import com.jnotifier.services.NotificationService;
 import com.jnotifier.payload.response.ApiResponse;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(JNotifierConstants.API_BASE_URL + "/notifications")
 public class NotificationController {

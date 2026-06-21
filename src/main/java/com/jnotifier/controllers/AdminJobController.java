@@ -21,7 +21,6 @@ import com.jnotifier.payload.response.PaginatedResponse;
 import com.jnotifier.services.ApplicationService;
 import com.jnotifier.services.CategoryService;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping(JNotifierConstants.API_BASE_URL + "/admin")
 @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERADMIN')")

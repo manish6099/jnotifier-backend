@@ -56,10 +56,13 @@ public class User extends BaseEntity {
     @Column(name = "is_pwd")
     private Boolean isPwd;
 
+    @Column(name = "is_email_verified")
+    private Boolean isEmailVerified;
+
     public User() {
     }
 
-    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, String category, Boolean isPwd) {
+    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, String category, Boolean isPwd, Boolean isEmailVerified) {
         this.fullname = fullname;
         this.email = email;
         this.password = password;
@@ -68,6 +71,7 @@ public class User extends BaseEntity {
         this.mobile = mobile;
         this.category = category;
         this.isPwd = isPwd;
+        this.isEmailVerified = isEmailVerified;
     }
 
     public String getUsername() {
@@ -148,5 +152,13 @@ public class User extends BaseEntity {
 
     public void setIsPwd(Boolean isPwd) {
         this.isPwd = isPwd;
+    }
+
+    public Boolean getIsEmailVerified() {
+        return isEmailVerified;
+    }
+
+    public void setIsEmailVerified(Boolean isEmailVerified) {
+        this.isEmailVerified = isEmailVerified;
     }
 }
