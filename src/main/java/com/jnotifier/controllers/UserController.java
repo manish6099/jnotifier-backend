@@ -49,6 +49,7 @@ public class UserController {
         reply.put("category", user.getCategory());
         reply.put("isPwd", user.getIsPwd().toString());
         reply.put("dob", user.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        reply.put("gender",user.getGender());
 
         return ResponseEntity.ok(ApiResponse.success(reply));
     }

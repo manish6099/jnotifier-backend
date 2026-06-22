@@ -194,6 +194,9 @@ public class AuthController {
         welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
         welcomeNotificationMsg.put("content", welcomeNotificationContent);
 
+        logger.info("[OTP Verification] Generated OTP {} for user {}", otpCode, resendOTPRequest.getUsername());
+        logger.info("[OTP Verification] Sending OTP email to {}", user.getEmail());
+
         redisService.publishOTPNotification(welcomeNotificationMsg);
         return ResponseEntity.ok(ApiResponse.success(data));
     }

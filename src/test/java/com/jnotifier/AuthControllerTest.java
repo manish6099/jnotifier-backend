@@ -86,7 +86,7 @@ public class AuthControllerTest {
 
     // 2. Signup public user (default: superadmin role)
     SignupRequest signupRequest = new SignupRequest();
-    signupRequest.setFullname("John Doe");
+    signupRequest.setFullName("John Doe");
     signupRequest.setEmail("john.doe@example.com");
     signupRequest.setPassword("securePassword123");
     signupRequest.setDob(LocalDate.of(1990, 1, 1));
@@ -189,8 +189,8 @@ public class AuthControllerTest {
   public void testAdminRoleCreationRestrictions() throws Exception {
     Map<String, String> captcha = getNewCaptcha();
     SignupRequest adminSignupRequest = new SignupRequest();
-    adminSignupRequest.setFullname("Admin User");
     adminSignupRequest.setEmail("admin@example.com");
+    adminSignupRequest.setFullName("Admin User");
     adminSignupRequest.setPassword("securePassword123");
     adminSignupRequest.setDob(LocalDate.of(1985, 5, 5));
     adminSignupRequest.setGender("F");
@@ -213,7 +213,7 @@ public class AuthControllerTest {
   public void testAdminRoleCreationBySuperadmin() throws Exception {
     Map<String, String> captcha = getNewCaptcha();
     SignupRequest adminSignupRequest = new SignupRequest();
-    adminSignupRequest.setFullname("Admin User");
+    adminSignupRequest.setFullName("Admin User");
     adminSignupRequest.setEmail("admin@example.com");
     adminSignupRequest.setPassword("securePassword123");
     adminSignupRequest.setDob(LocalDate.of(1985, 5, 5));
@@ -250,7 +250,7 @@ public class AuthControllerTest {
 
     // 2. Signup
     SignupRequest signupRequest = new SignupRequest();
-    signupRequest.setFullname("Cookie Tester");
+    signupRequest.setFullName("Cookie Tester");
     signupRequest.setEmail("cookie.tester@example.com");
     signupRequest.setPassword("cookiePass123");
     signupRequest.setDob(LocalDate.of(1990, 1, 1));
