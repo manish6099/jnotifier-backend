@@ -64,7 +64,7 @@ public class VerifyService implements IVerifyService {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
                 .httpOnly(true)
                 .secure(true)
-                .path(JNotifierConstants.API_BASE_URL + "/auth/refesh-token")
+                .path(JNotifierConstants.API_BASE_URL + "/auth/refresh-token")
                 .sameSite("None")
                 .maxAge(refreshTokenDurationMs / 1000)
                 .build();

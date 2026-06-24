@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jnotifier.app.JNotifierConstants;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,8 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +27,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.jnotifier.services.impl.UserDetailsServiceImpl;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
     @Autowired
@@ -48,16 +46,26 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (ExpiredJwtException ex) {
-            ex.printStackTrace();
+            logger.warn("JWT token is expired: {}", ex.getMessage());
+            // For public/auth/app routes, allow the request to proceed unauthenticated
+            // so that Spring Security's permitAll() rules can still apply.
+            String requestPath = request.getServletPath();
+            String publicBase = JNotifierConstants.API_BASE_URL;
+            if (requestPath.startsWith(publicBase + "/public/")
+                    || requestPath.startsWith(publicBase + "/auth/")
+                    || requestPath.startsWith(publicBase + "/app/")
+                    || requestPath.equals("/error")) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             handleJwtError(response);
             return;
         } catch (Exception e) {
@@ -71,7 +79,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String headerAuth = request.getHeader("Authorization");
 
         if (headerAuth == null) {
-            java.util.Optional<Cookie> accessCookie = Arrays.stream(request.getCookies())
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                return null;
+            }
+            Optional<Cookie> accessCookie = Arrays.stream(cookies)
                     .filter(cookie -> cookie.getName().equals("accessToken"))
                     .findFirst();
 

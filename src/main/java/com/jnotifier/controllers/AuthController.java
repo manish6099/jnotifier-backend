@@ -348,7 +348,7 @@ public class AuthController {
         }
 
         String finalToken = requestRefreshToken;
-        TokenRefreshResponse tokenRefreshResponse = refreshTokenService.findByToken(finalToken)
+        TokenRefreshResponse tokenRefreshResponse = refreshTokenService.findByToken(cookieRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
@@ -362,7 +362,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path("/")
+                .path(JNotifierConstants.API_BASE_URL + "/auth/refresh-token")
                 .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
@@ -370,7 +370,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path("/")
+                .path(JNotifierConstants.API_BASE_URL)
                 .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
