@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.app.JNotifierEnums;
+import com.jnotifier.helpers.EmailHelper;
 import com.jnotifier.payload.request.*;
 import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.services.impl.RedisService;
@@ -97,6 +98,22 @@ public class AuthController {
     @Autowired
     private VerifyService verifyService;
 
+    @Autowired
+    private EmailHelper emailHelper;
+
+    private Map<String, String> getOtpPayload(User user, String otp) {
+        Map<String, String> payload = new HashMap<>();
+
+        payload.put("userName", user.getUsername());
+        payload.put("name", user.getFullname());
+        payload.put("subject", "Request for new OTP reg.");
+        payload.put("email", user.getEmail());
+        payload.put("supportEmail", notificationSupportEmail);
+        payload.put("otp", otp);
+
+        return payload;
+    }
+
     @GetMapping("/captcha")
     public ResponseEntity<ApiResponse<Map<String, String>>> getCaptcha() {
         String captchaId = UUID.randomUUID().toString();
@@ -115,8 +132,6 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<Map<String, String>>> authenticateUser(
             @Valid @RequestBody LoginRequest loginRequest) throws JsonProcessingException {
-        Map<String, Object> welcomeNotificationMsg = new HashMap<>();
-        Map<String, String> welcomeNotificationContent = new HashMap<>();
         // 1. Validate Captcha
         String correctCaptcha = captchaStore.get(loginRequest.getCaptchaId());
         if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(loginRequest.getCaptchaValue())) {
@@ -143,35 +158,24 @@ public class AuthController {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
 
-        logger.info("[OTP Verification] Generated OTP {} for user {}", otpCode, loginRequest.getUsername());
-        logger.info("[OTP Verification] Sending OTP email to {}", user.getEmail());
-
         Map<String, String> data = new HashMap<>();
         data.put("username", loginRequest.getUsername());
         data.put("status", "OTP_REQUIRED");
         data.put("message", "OTP verification code has been generated. Please verify to complete sign-in.");
 
-        //Creating content object for welcome notification
-        welcomeNotificationContent.put("userName", user.getUsername());
-        welcomeNotificationContent.put("name", user.getFullname());
-        welcomeNotificationContent.put("subject", "Request for new OTP reg.");
-        welcomeNotificationContent.put("email", user.getEmail());
-        welcomeNotificationContent.put("supportEmail", notificationSupportEmail);
-        welcomeNotificationContent.put("otp", otpCode);
+        if (!defaultOtpEnabled) {
+            logger.info("[OTP Verification] Generated OTP for authentication purposes {} for user {}", otpCode, loginRequest.getUsername());
 
-        //Creating actual welcome notification payload.
-        welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
-        welcomeNotificationMsg.put("content", welcomeNotificationContent);
+            Map<String, String> content = getOtpPayload(user, otpCode);
+            emailHelper.sendAuthNotification(content);
+        }
 
-        redisService.publishOTPNotification(welcomeNotificationMsg);
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
     @PostMapping("/resend-otp")
     public ResponseEntity<ApiResponse<Object>> resendOtp(@Valid @RequestBody ResendOTPRequest resendOTPRequest) throws JsonProcessingException {
         Map<String, String> data = new HashMap<>();
-        Map<String, Object> welcomeNotificationMsg = new HashMap<>();
-        Map<String, String> welcomeNotificationContent = new HashMap<>();
         User user = userRepository.findByUsername(resendOTPRequest.getUsername()).orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
         String otpCode = "123456";
 
@@ -182,22 +186,12 @@ public class AuthController {
         otpStore.put(resendOTPRequest.getUsername(), otpCode);
         data.put("message", "OTP sent successfully");
 
-        //Creating content object for welcome notification
-        welcomeNotificationContent.put("userName", user.getUsername());
-        welcomeNotificationContent.put("name", user.getFullname());
-        welcomeNotificationContent.put("subject", "Request for new OTP reg.");
-        welcomeNotificationContent.put("email", user.getEmail());
-        welcomeNotificationContent.put("supportEmail", notificationSupportEmail);
-        welcomeNotificationContent.put("otp", otpCode);
+        if (!defaultOtpEnabled) {
+            logger.info("[OTP Verification] Generated OTP {} for user {}", otpCode, resendOTPRequest.getUsername());
+            Map<String, String> welcomeNotificationContent = getOtpPayload(user, otpCode);
+            emailHelper.sendEmailOTP(welcomeNotificationContent);
+        }
 
-        //Creating actual welcome notification payload.
-        welcomeNotificationMsg.put("timestamp", System.currentTimeMillis());
-        welcomeNotificationMsg.put("content", welcomeNotificationContent);
-
-        logger.info("[OTP Verification] Generated OTP {} for user {}", otpCode, resendOTPRequest.getUsername());
-        logger.info("[OTP Verification] Sending OTP email to {}", user.getEmail());
-
-        redisService.publishOTPNotification(welcomeNotificationMsg);
         return ResponseEntity.ok(ApiResponse.success(data));
     }
 
