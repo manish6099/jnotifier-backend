@@ -1,5 +1,6 @@
 package com.jnotifier.services.impl;
 
+import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.RefreshToken;
 import com.jnotifier.entity.User;
 import com.jnotifier.payload.request.OtpRequest;
@@ -63,7 +64,7 @@ public class VerifyService implements IVerifyService {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path(JNotifierConstants.API_BASE_URL + "/auth/refesh-token")
                 .sameSite("None")
                 .maxAge(refreshTokenDurationMs / 1000)
                 .build();
@@ -71,9 +72,8 @@ public class VerifyService implements IVerifyService {
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtResponse.getAccessToken())
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path(JNotifierConstants.API_BASE_URL)
                 .sameSite("None")
-                .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
         map.put("jwtResponse", jwtResponse);
