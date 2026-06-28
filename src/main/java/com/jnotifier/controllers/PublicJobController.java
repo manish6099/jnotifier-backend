@@ -1,18 +1,23 @@
 package com.jnotifier.controllers;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.jnotifier.app.JNotifierConstants;
+import com.jnotifier.entity.Application;
+import com.jnotifier.payload.response.*;
+import com.jnotifier.services.core.FileStorageService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
-import com.jnotifier.payload.response.ApiResponse;
-import com.jnotifier.payload.response.CategoryPublicResponse;
-import com.jnotifier.payload.response.JobApplicationResponse;
-import com.jnotifier.payload.response.PaginatedResponse;
 import com.jnotifier.services.ApplicationService;
 import com.jnotifier.services.CategoryService;
 
@@ -26,6 +31,9 @@ public class PublicJobController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @GetMapping("/jobs")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
             @RequestParam(defaultValue = "0") int page,
@@ -36,7 +44,9 @@ public class PublicJobController {
                         app.getTags(),
                         app.getApplicationStartDate(),
                         app.getApplicationEndDate(),
-                        app.getShortDescription()
+                        app.getShortDescription(),
+                        app.getAdvertisementNo(),
+                        app.getId()
                 ));
 
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
@@ -53,5 +63,38 @@ public class PublicJobController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(ApiResponse.success(categories));
+    }
+
+    @GetMapping("/applications/{applicationId}")
+    public ResponseEntity<ApiResponse<FullJobApplicationResponse>> getJobApplication(@PathVariable Long applicationId) {
+        Application application = applicationService.findById(applicationId);
+        FullJobApplicationResponse response = new FullJobApplicationResponse(application.getTitle(), application.getTags(),
+                application.getApplicationStartDate(), application.getApplicationEndDate(), application.getShortDescription(),
+                application.getAdvertisementNo(), applicationId, application.getViewPageDescription(), application.getApplyLink(),
+                application.getAdvFileName());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/uploads/{filename:.+}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename, HttpServletRequest request) throws MalformedURLException, IOException {
+        // 1. Load the file as a resource
+        Resource resource = fileStorageService.loadFileAsResource(filename);
+
+        // 2. Determine the file's content type (e.g., image/jpeg, application/pdf)
+        String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+        // Fallback to the default type if the type could not be determined
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        // 3. Return the file — include Content-Length so reverse proxies (Nginx) can
+        //    stream without buffering the entire response first.
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .contentLength(resource.contentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

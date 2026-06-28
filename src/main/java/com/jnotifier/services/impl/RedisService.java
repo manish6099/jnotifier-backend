@@ -6,18 +6,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class RedisService {
     private static final Logger logger = LoggerFactory.getLogger(RedisService.class);
 
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -38,7 +36,7 @@ public class RedisService {
         logger.debug("Publishing Welcome Notification");
 
         String cleanJsonPayload = objectMapper.writeValueAsString(message);
-        redisTemplate.convertAndSend(welcomeNotificationChannel.getTopic(), cleanJsonPayload);
+        stringRedisTemplate.convertAndSend(welcomeNotificationChannel.getTopic(), cleanJsonPayload);
         logger.debug("Published Welcome Notification");
     }
 
@@ -46,14 +44,15 @@ public class RedisService {
         logger.debug("Publishing OTP Notification");
 
         String cleanJsonPayload = objectMapper.writeValueAsString(message);
-        redisTemplate.convertAndSend(otpNotificationChannel.getTopic(), cleanJsonPayload);
+        stringRedisTemplate.convertAndSend(otpNotificationChannel.getTopic(), cleanJsonPayload);
         logger.debug("Published OTP Notification");
     }
 
-    public void publishAuthNotification(Object message) {
+    public void publishAuthNotification(Object message) throws JsonProcessingException {
         logger.debug("Publishing Auth Notification");
 
-        redisTemplate.convertAndSend(authNotificationChannel.getTopic(), message);
+        String cleanJsonPayload = objectMapper.writeValueAsString(message);
+        stringRedisTemplate.convertAndSend(authNotificationChannel.getTopic(), cleanJsonPayload);
         logger.debug("Published Auth Notification");
     }
 }

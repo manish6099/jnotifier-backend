@@ -1,8 +1,12 @@
 package com.jnotifier.controllers;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import com.jnotifier.app.JNotifierConstants;
+import com.jnotifier.exception.GenericException;
+import com.jnotifier.services.core.FileStorageService;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +24,7 @@ import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.payload.response.PaginatedResponse;
 import com.jnotifier.services.ApplicationService;
 import com.jnotifier.services.CategoryService;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(JNotifierConstants.API_BASE_URL + "/admin")
@@ -32,11 +37,49 @@ public class AdminJobController {
     @Autowired
     private CategoryService categoryService;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     // --- Job Application Endpoints ---
 
     @PostMapping("/applications")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @RequestBody ApplicationRequest request) {
+    public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @ModelAttribute ApplicationRequest request,
+                                                                      @RequestParam("file") MultipartFile file,
+                                                                      @RequestParam("advFile") MultipartFile advFile) throws IOException {
+        if (file.isEmpty()) throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload a file"));
+        if (advFile.isEmpty()) throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload a file"));
+
+        String originalFilename = file.getOriginalFilename();
+        String contentType = file.getContentType();
+
+        String advFilename = advFile.getOriginalFilename();
+        String advContentType = advFile.getContentType();
+
+        boolean hasMdExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".md");
+        boolean hasMdMimeType = "text/markdown".equalsIgnoreCase(contentType);
+        boolean hasPdfExtension = advFilename != null && advFilename.toLowerCase().endsWith(".pdf");
+        boolean hasPdfMimeType = "application/pdf".equalsIgnoreCase(advContentType);
+
+        long fileSize = file.getSize() / (1024 * 1024);
+        long advFileSize = advFile.getSize() / (1024 * 1024);
+
+        if (!hasMdExtension && !hasMdMimeType)
+            throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a markdown file."));
+        if (!hasPdfExtension && !hasPdfMimeType)
+            throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a pdf file."));
+
+        if (fileSize > 5)
+            throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+        if (advFileSize > 50)
+            throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+
+        byte[] fileBytes = file.getBytes();
+        String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
+
+        request.setViewPageDescription(markdownContent);
+        request.setAdvFileName("/uploads/" + fileStorageService.saveFile(advFile));
+
         Application saved = applicationService.save(request);
         return ResponseEntity.ok(ApiResponse.success(saved));
     }

@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.app.JNotifierEnums;
+import com.jnotifier.helpers.CaptchaHelper;
 import com.jnotifier.helpers.EmailHelper;
 import com.jnotifier.payload.request.*;
 import com.jnotifier.payload.response.ServiceReply;
@@ -59,9 +60,6 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    // Stores captchaId -> captchaCode
-    private static final Map<String, String> captchaStore = new ConcurrentHashMap<>();
-
     // Stores username -> otpCode
     private static final Map<String, String> otpStore = new ConcurrentHashMap<>();
 
@@ -82,6 +80,9 @@ public class AuthController {
 
     @Autowired
     PasswordEncoder encoder;
+
+    @Autowired
+    CaptchaHelper captchaHelper;
 
     @Autowired
     JwtUtils jwtUtils;
@@ -118,7 +119,6 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Map<String, String>>> getCaptcha() {
         String captchaId = UUID.randomUUID().toString();
         String captchaCode = generateRandomText();
-        captchaStore.put(captchaId, captchaCode);
 
         String captchaImageBase64 = generateCaptchaImage(captchaCode);
 
@@ -126,20 +126,23 @@ public class AuthController {
         response.put("captchaId", captchaId);
         response.put("captchaImage", captchaImageBase64);
 
+        captchaHelper.generateCaptcha(captchaId, captchaCode);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PostMapping("/signin")
     public ResponseEntity<ApiResponse<Map<String, String>>> authenticateUser(
             @Valid @RequestBody LoginRequest loginRequest) throws JsonProcessingException {
-        // 1. Validate Captcha
-        String correctCaptcha = captchaStore.get(loginRequest.getCaptchaId());
-        if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(loginRequest.getCaptchaValue())) {
+        //1. Validate Captcha
+        String captchaId = loginRequest.getCaptchaId();
+        String captcha = loginRequest.getCaptchaValue();
+
+        if (!captchaHelper.validateCaptcha(captchaId, captcha)) {
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponse.error("INVALID_CAPTCHA", "Captcha is incorrect or expired."));
         }
-        captchaStore.remove(loginRequest.getCaptchaId());
+        captchaHelper.clearCaptcha(captchaId);
 
         // 2. Authenticate username and password credentials
         Authentication authentication = authenticationManager.authenticate(
@@ -167,7 +170,7 @@ public class AuthController {
             logger.info("[OTP Verification] Generated OTP for authentication purposes {} for user {}", otpCode, loginRequest.getUsername());
 
             Map<String, String> content = getOtpPayload(user, otpCode);
-            emailHelper.sendAuthNotification(content);
+            emailHelper.sendEmailOTP(content);
         }
 
         return ResponseEntity.ok(ApiResponse.success(data));
@@ -200,8 +203,6 @@ public class AuthController {
         String correctOtp = otpStore.get(otpRequest.getUsername());
         String verificationType = otpRequest.getVerificationType();
         ServiceReply serviceReply;
-
-        System.out.println(correctOtp + " " + otpRequest.getOtpCode());
 
         if (correctOtp == null || !correctOtp.equals(otpRequest.getOtpCode())) {
             return ResponseEntity
@@ -237,13 +238,15 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Object>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) throws JsonProcessingException {
-        String correctCaptcha = captchaStore.get(signUpRequest.getCaptchaId());
-        if (correctCaptcha == null || !correctCaptcha.equalsIgnoreCase(signUpRequest.getCaptcha())) {
+        String captchaId = signUpRequest.getCaptchaId();
+        String captcha = signUpRequest.getCaptcha();
+
+        if (!captchaHelper.validateCaptcha(captchaId, captcha)) {
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponse.error("INVALID_CAPTCHA", "Captcha is incorrect or expired."));
         }
-        captchaStore.remove(signUpRequest.getCaptchaId());
+        captchaHelper.clearCaptcha(captchaId);
 
         if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             return ResponseEntity
@@ -260,9 +263,8 @@ public class AuthController {
         if (requestedRole.equalsIgnoreCase("admin")) {
             // Admin role registration is protected and can only be done by SUPERADMIN
             Authentication callerAuth = SecurityContextHolder.getContext().getAuthentication();
-            if (callerAuth == null ||
-                    !callerAuth.isAuthenticated() ||
-                    callerAuth instanceof AnonymousAuthenticationToken ||
+
+            if (!callerAuth.isAuthenticated() ||
                     callerAuth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"))) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(ApiResponse.error("FORBIDDEN", "Error: Only SUPERADMIN accounts can register new ADMIN users."));
@@ -362,8 +364,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("None")
-                .path(JNotifierConstants.API_BASE_URL + "/auth/refresh-token")
-                .maxAge(refreshTokenDurationMs / 1000)
+                .path(JNotifierConstants.API_BASE_URL + "/auth")
                 .build();
 
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", tokenRefreshResponse.getAccessToken())
@@ -371,13 +372,41 @@ public class AuthController {
                 .secure(true)
                 .sameSite("None")
                 .path(JNotifierConstants.API_BASE_URL)
-                .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, refCookie.toString())
                 .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                 .body(ApiResponse.success(tokenRefreshResponse));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(@CookieValue(name = "refreshToken") String cookieRefreshToken,
+                                                    @CookieValue(name = "accessToken") String cookieAccessToken) {
+        RefreshToken token = refreshTokenService.findByToken(cookieRefreshToken).
+                orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_TOKEN", "Invalid refresh token!")));
+
+        User user = token.getUser();
+        refreshTokenService.deleteByUserId(user.getId());
+
+        ResponseCookie refCookie = ResponseCookie.from("refreshToken", cookieRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path(JNotifierConstants.API_BASE_URL + "/auth")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", cookieRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path(JNotifierConstants.API_BASE_URL)
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, refCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString()).build();
     }
 
     // --- Helper Methods ---

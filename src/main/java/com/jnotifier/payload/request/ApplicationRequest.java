@@ -4,81 +4,113 @@ import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.LocalDate;
 
 public class ApplicationRequest {
-  @NotBlank
-  private String title;
+    @NotBlank
+    private String title;
 
-  private String tags;
+    private String tags;
 
-  @NotNull
-  private LocalDate applicationStartDate;
+    @NotNull
+    private LocalDate applicationStartDate;
 
-  @NotNull
-  private LocalDate applicationEndDate;
+    @NotNull
+    private LocalDate applicationEndDate;
 
-  @Size(max = 100)
-  private String advNo;
+    @Size(max = 100)
+    private String advNo;
 
-  @Size(max = 100)
-  private String shortDescription;
+    @Size(max = 700)
+    private String shortDescription;
 
-  private Boolean status;
+    private String viewPageDescription;
 
-  public String getTitle() {
-    return title;
-  }
+    @Size(max = 100)
+    private String applyLink;
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
+    private Boolean status;
 
-  public String getTags() {
-    return tags;
-  }
+    private String advFileName;
 
-  public void setTags(String tags) {
-    this.tags = tags;
-  }
+    public String getTitle() {
+        return title;
+    }
 
-  public LocalDate getApplicationStartDate() {
-    return applicationStartDate;
-  }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-  public void setApplicationStartDate(LocalDate applicationStartDate) {
-    this.applicationStartDate = applicationStartDate;
-  }
+    public String getTags() {
+        return tags;
+    }
 
-  public LocalDate getApplicationEndDate() {
-    return applicationEndDate;
-  }
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 
-  public void setApplicationEndDate(LocalDate applicationEndDate) {
-    this.applicationEndDate = applicationEndDate;
-  }
+    public LocalDate getApplicationStartDate() {
+        return applicationStartDate;
+    }
 
-  public String getShortDescription() {
-    return shortDescription;
-  }
+    public void setApplicationStartDate(LocalDate applicationStartDate) {
+        this.applicationStartDate = applicationStartDate;
+    }
 
-  public void setShortDescription(String shortDescription) {
-    this.shortDescription = shortDescription;
-  }
+    public LocalDate getApplicationEndDate() {
+        return applicationEndDate;
+    }
 
-  public Boolean getStatus() {
-    return status;
-  }
+    public void setApplicationEndDate(LocalDate applicationEndDate) {
+        this.applicationEndDate = applicationEndDate;
+    }
 
-  public void setStatus(Boolean status) {
-    this.status = status;
-  }
+    public String getShortDescription() {
+        return shortDescription;
+    }
 
-  public String getAdvNo() {
-    return advNo;
-  }
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
 
-  public void setAdvNo(String advNo) {
-    this.advNo = advNo;
-  }
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public String getAdvNo() {
+        return advNo;
+    }
+
+    public void setAdvNo(String advNo) {
+        this.advNo = advNo;
+    }
+
+    public String getViewPageDescription() {
+        return viewPageDescription;
+    }
+
+    public void setViewPageDescription(String viewPageDescription) {
+        this.viewPageDescription = viewPageDescription;
+    }
+
+    public String getApplyLink() {
+        return applyLink;
+    }
+
+    public void setApplyLink(String applyLink) {
+        this.applyLink = applyLink;
+    }
+
+    public String getAdvFileName() {
+        return advFileName;
+    }
+
+    public void setAdvFileName(String advFileName) {
+        this.advFileName = advFileName;
+    }
 }

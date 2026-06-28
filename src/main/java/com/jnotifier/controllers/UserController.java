@@ -1,18 +1,21 @@
 package com.jnotifier.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.User;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.payload.request.SignupRequest;
 import com.jnotifier.payload.response.ApiResponse;
+import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.repository.UserRepository;
+import com.jnotifier.services.impl.UserServices;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -25,6 +28,8 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserServices services;
 
     @GetMapping("/get-me")
     public ResponseEntity<ApiResponse<Object>> getMe() {
@@ -49,8 +54,15 @@ public class UserController {
         reply.put("category", user.getCategory());
         reply.put("isPwd", user.getIsPwd().toString());
         reply.put("dob", user.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        reply.put("gender",user.getGender());
+        reply.put("gender", user.getGender());
 
         return ResponseEntity.ok(ApiResponse.success(reply));
+    }
+
+
+    @PostMapping("/register-admin")
+    public ResponseEntity<ApiResponse<Object>> registerAdminUsers(@Valid @RequestBody SignupRequest signupRequest) throws JsonProcessingException, GenericException {
+        ServiceReply serviceReply = services.registerAdminUsers(signupRequest);
+        return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(serviceReply.getReply()));
     }
 }

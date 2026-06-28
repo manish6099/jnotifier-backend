@@ -3,7 +3,9 @@ package com.jnotifier.services.impl;
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.RefreshToken;
 import com.jnotifier.entity.User;
+import com.jnotifier.exception.GenericException;
 import com.jnotifier.payload.request.OtpRequest;
+import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.payload.response.JwtResponse;
 import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.repository.UserRepository;
@@ -41,13 +43,8 @@ public class VerifyService implements IVerifyService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        if (!user.getIsEmailVerified()) {
-            map.put("message", "You are not verified, please verify yourself first");
-
-            serviceReply.setHttpStatusCode(HttpStatusCode.valueOf(401));
-            serviceReply.setReply(map);
-            return serviceReply;
-        }
+        if (!user.getIsEmailVerified())
+            throw new GenericException(ApiResponse.error("ACCOUNT_NOT_VERIFIED", "Please verify your account"));
 
         String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
@@ -64,9 +61,8 @@ public class VerifyService implements IVerifyService {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken.getToken())
                 .httpOnly(true)
                 .secure(true)
-                .path(JNotifierConstants.API_BASE_URL + "/auth/refresh-token")
+                .path(JNotifierConstants.API_BASE_URL + "/auth")
                 .sameSite("None")
-                .maxAge(refreshTokenDurationMs / 1000)
                 .build();
 
         ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtResponse.getAccessToken())
@@ -75,6 +71,8 @@ public class VerifyService implements IVerifyService {
                 .path(JNotifierConstants.API_BASE_URL)
                 .sameSite("None")
                 .build();
+
+        System.out.println(cookie.toString());
 
         map.put("jwtResponse", jwtResponse);
         map.put("refCookie", cookie);

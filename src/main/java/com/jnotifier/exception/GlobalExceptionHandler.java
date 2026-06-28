@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -29,6 +30,14 @@ public class GlobalExceptionHandler {
         String requestId = MDC.get("requestId");
         logger.error("[Request ID: {}] Token refresh error occurred: {}", requestId, ex.getMessage(), ex);
         return ApiResponse.error("TOKEN_REFRESH_ERROR", ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiResponse<?> handleBadCredentialException(TokenRefreshException ex) {
+        String requestId = MDC.get("requestId");
+        logger.error("[Request ID: {}] Bad credential error occurred: {}", requestId, ex.getMessage(), ex);
+        return ApiResponse.error("BAD_CREDS_ERROR", ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

@@ -32,7 +32,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setApplicationStartDate(request.getApplicationStartDate());
         application.setApplicationEndDate(request.getApplicationEndDate());
         application.setShortDescription(request.getShortDescription());
+        application.setViewPageDescription(request.getViewPageDescription());
+        application.setApplyLink(request.getApplyLink());
         application.setStatus(true);
+        application.setAdvFileName(request.getAdvFileName());
 
         if (request.getAdvNo() != null) {
             application.setAdvertisementNo(request.getAdvNo());
@@ -49,6 +52,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         application.setApplicationStartDate(request.getApplicationStartDate());
         application.setApplicationEndDate(request.getApplicationEndDate());
         application.setShortDescription(request.getShortDescription());
+        application.setViewPageDescription(request.getViewPageDescription());
+        application.setApplyLink(request.getApplyLink());
         application.setAdvertisementNo(request.getAdvNo());
 
         if (request.getStatus() != null) {

@@ -31,18 +31,28 @@ public class Application extends BaseEntity {
     @Column(name = "application_end_date", nullable = false)
     private LocalDate applicationEndDate;
 
-    @Size(max = 100)
-    @Column(name = "short_description", length = 100)
+    @Size(max = 700)
+    @Column(name = "short_description", length = 700)
     private String shortDescription;
+
+    @Column(name = "view_page_description", columnDefinition = "TEXT")
+    private String viewPageDescription;
+
+    @Column(name = "adv_filename", columnDefinition = "VARCHAR(100)")
+    private String advFileName;
 
     @NotNull
     @Column(name = "status", nullable = false)
     private Boolean status = true;
 
+    @Size(max = 100)
+    @Column(name = "apply_link", columnDefinition = "VARCHAR(100)")
+    private String applyLink;
+
     public Application() {
     }
 
-    public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, Boolean status, String advNo) {
+    public Application(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, Boolean status, String advNo, String viewPageDescription, String applyLink) {
         this.title = title;
         this.tags = tags;
         this.applicationStartDate = applicationStartDate;
@@ -50,6 +60,8 @@ public class Application extends BaseEntity {
         this.shortDescription = shortDescription;
         this.status = status;
         this.advertisementNo = advNo;
+        this.viewPageDescription = viewPageDescription;
+        this.applyLink = applyLink;
     }
 
     public String getTitle() {
@@ -106,5 +118,29 @@ public class Application extends BaseEntity {
 
     public void setAdvertisementNo(String advertisementNo) {
         this.advertisementNo = advertisementNo;
+    }
+
+    public String getViewPageDescription() {
+        return viewPageDescription;
+    }
+
+    public void setViewPageDescription(String viewPageDescription) {
+        this.viewPageDescription = viewPageDescription;
+    }
+
+    public String getApplyLink() {
+        return applyLink;
+    }
+
+    public void setApplyLink(String applyLink) {
+        this.applyLink = applyLink;
+    }
+
+    public String getAdvFileName() {
+        return advFileName;
+    }
+
+    public void setAdvFileName(String advFileName) {
+        this.advFileName = advFileName;
     }
 }

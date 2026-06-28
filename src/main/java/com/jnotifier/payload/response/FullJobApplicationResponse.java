@@ -2,7 +2,7 @@ package com.jnotifier.payload.response;
 
 import java.time.LocalDate;
 
-public class JobApplicationResponse {
+public class FullJobApplicationResponse {
     private String title;
     private String tags;
     private LocalDate applicationStartDate;
@@ -10,11 +10,14 @@ public class JobApplicationResponse {
     private String shortDescription;
     private String advNo;
     private long applicationId;
+    private String viewPageDescription;
+    private String applyLink;
+    private String advFilePath;
 
-    public JobApplicationResponse() {
+    public FullJobApplicationResponse() {
     }
 
-    public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo, long applicationId) {
+    public FullJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo, long applicationId, String viewPageDescription) {
         this.title = title;
         this.tags = tags;
         this.applicationStartDate = applicationStartDate;
@@ -22,6 +25,21 @@ public class JobApplicationResponse {
         this.shortDescription = shortDescription;
         this.advNo = advNo;
         this.applicationId = applicationId;
+        this.viewPageDescription = viewPageDescription;
+    }
+
+    public FullJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo,
+                                      long applicationId, String viewPageDescription, String applyLink, String advFilePath) {
+        this.title = title;
+        this.tags = tags;
+        this.applicationStartDate = applicationStartDate;
+        this.applicationEndDate = applicationEndDate;
+        this.shortDescription = shortDescription;
+        this.advNo = advNo;
+        this.applicationId = applicationId;
+        this.viewPageDescription = viewPageDescription;
+        this.applyLink = applyLink;
+        this.advFilePath = advFilePath;
     }
 
     public String getTitle() {
@@ -78,5 +96,29 @@ public class JobApplicationResponse {
 
     public void setApplicationId(long applicationId) {
         this.applicationId = applicationId;
+    }
+
+    public String getViewPageDescription() {
+        return viewPageDescription;
+    }
+
+    public void setViewPageDescription(String viewPageDescription) {
+        this.viewPageDescription = viewPageDescription;
+    }
+
+    public String getApplyLink() {
+        return applyLink;
+    }
+
+    public void setApplyLink(String applyLink) {
+        this.applyLink = applyLink;
+    }
+
+    public String getAdvFilePath() {
+        return advFilePath;
+    }
+
+    public void setAdvFilePath(String advFilePath) {
+        this.advFilePath = advFilePath;
     }
 }

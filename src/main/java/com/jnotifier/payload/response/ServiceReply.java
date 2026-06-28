@@ -23,4 +23,10 @@ public class ServiceReply {
     public void setReply(Map<String, Object> reply) {
         this.reply = reply;
     }
+
+    public ServiceReply build(HttpStatusCode httpStatusCode, Map<String, Object> reply) {
+        this.httpStatusCode = httpStatusCode;
+        this.reply = reply;
+        return this;
+    }
 }
