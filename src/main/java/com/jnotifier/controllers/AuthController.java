@@ -17,6 +17,7 @@ import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.app.JNotifierEnums;
 import com.jnotifier.helpers.CaptchaHelper;
 import com.jnotifier.helpers.EmailHelper;
+import com.jnotifier.payload.pojo.SimpleUserPojo;
 import com.jnotifier.payload.request.*;
 import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.services.impl.RedisService;
@@ -145,8 +146,8 @@ public class AuthController {
         captchaHelper.clearCaptcha(captchaId);
 
         // 2. Authenticate username and password credentials
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                loginRequest.getPassword()));
 
         // 3. Generate OTP
         String otpCode = "123456";
@@ -157,9 +158,8 @@ public class AuthController {
 
         otpStore.put(loginRequest.getUsername(), otpCode);
 
-        // Simulate sending OTP to user's registered email
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
+        User user = userRepository.findByUsernameOrEmail(loginRequest.getUsername(), loginRequest.getUsername())
+                .orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Invalid credentials.")));
 
         Map<String, String> data = new HashMap<>();
         data.put("username", loginRequest.getUsername());
@@ -177,9 +177,10 @@ public class AuthController {
     }
 
     @PostMapping("/resend-otp")
-    public ResponseEntity<ApiResponse<Object>> resendOtp(@Valid @RequestBody ResendOTPRequest resendOTPRequest) throws JsonProcessingException {
+    public ResponseEntity<ApiResponse<Object>> resendOtp(@Valid @RequestBody ResendOTPRequest resendOTPRequest)
+            throws JsonProcessingException {
         Map<String, String> data = new HashMap<>();
-        User user = userRepository.findByUsername(resendOTPRequest.getUsername()).orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
+        User user = userRepository.findByUsernameOrEmail(resendOTPRequest.getUsername(), resendOTPRequest.getUsername()).orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Username or Password is wrong.")));
         String otpCode = "123456";
 
         if (!defaultOtpEnabled) {
@@ -196,6 +197,43 @@ public class AuthController {
         }
 
         return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<ApiResponse<Object>> verifyEmail(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest)
+            throws JsonProcessingException {
+        User user = userRepository.findByUsernameOrEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getEmail()).
+                orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_CRED", "Invalid Credentials")));
+
+        String otpCode = "123456";
+
+        if (!defaultOtpEnabled) {
+            otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
+        }
+        otpStore.put(emailVerifyRequest.getEmail(), otpCode);
+
+        if (!defaultOtpEnabled) {
+            Map<String, String> content = getOtpPayload(user, otpCode);
+            emailHelper.sendEmailOTP(content);
+        }
+
+        return ResponseEntity.ok(ApiResponse.success(new SimpleUserPojo(user.getUsername(), user.getEmail())));
+    }
+
+    @PostMapping("/forgot-pwd")
+    public ResponseEntity<ApiResponse<Object>> forgotPassword(@Valid @RequestBody EmailVerifyRequest emailVerifyRequest) {
+        User user = userRepository.findByUsernameOrEmail(emailVerifyRequest.getEmail(), emailVerifyRequest.getEmail()).
+                orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_CRED", "Invalid Credentials")));
+
+        String oldHashedPwd = user.getPassword();
+        String newHashedPwd = encoder.encode(emailVerifyRequest.getPassword());
+
+        if (oldHashedPwd.equals(newHashedPwd))
+            throw new GenericException(ApiResponse.error("INVALID_CRED", "Please set a unique password as this matches with your current password."));
+
+        user.setPassword(newHashedPwd);
+        userRepository.save(user);
+        return ResponseEntity.ok(ApiResponse.success(new SimpleUserPojo(user.getUsername(), user.getEmail())));
     }
 
     @PostMapping("/verify-otp")
@@ -230,6 +268,11 @@ public class AuthController {
                 Object response = serviceReply.getReply();
 
                 return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(response));
+
+            case FORGOT_PWD:
+                serviceReply = verifyService.forgotPassword(otpRequest.getUsername());
+                java.lang.Object reply = serviceReply.getReply();
+                return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(reply));
 
             default:
                 return ResponseEntity.badRequest().body(ApiResponse.error("INVALID_VERIFICATION_TYPE", "Invalid verification type."));
@@ -397,7 +440,34 @@ public class AuthController {
                 .sameSite("None")
                 .build();
 
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", cookieRefreshToken)
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", cookieAccessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path(JNotifierConstants.API_BASE_URL)
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, refCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, accessCookie.toString()).build();
+    }
+
+    @PostMapping("/clear")
+    public ResponseEntity<ApiResponse<Void>> clearCookies(@CookieValue(name = "refreshToken") String cookieRefreshToken,
+                                                          @CookieValue(name = "accessToken") String cookieAccessToken) {
+        Optional<RefreshToken> refreshToken = refreshTokenService.findByToken(cookieRefreshToken);
+        if (refreshToken.isPresent())
+            throw new GenericException(ApiResponse.error("INVALID_AUTH_STATE", "Cannot clear cookies!"));
+
+        ResponseCookie refCookie = ResponseCookie.from("refreshToken", cookieRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path(JNotifierConstants.API_BASE_URL + "/auth")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken", cookieAccessToken)
                 .httpOnly(true)
                 .secure(true)
                 .path(JNotifierConstants.API_BASE_URL)

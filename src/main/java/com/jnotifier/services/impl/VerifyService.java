@@ -40,8 +40,8 @@ public class VerifyService implements IVerifyService {
     public ServiceReply login(String username) {
         ServiceReply serviceReply = new ServiceReply();
         Map<String, Object> map = new HashMap<>();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
+        User user = userRepository.findByUsernameOrEmail(username, username)
+                .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_USER", "Invalid credentials")));
 
         if (!user.getIsEmailVerified())
             throw new GenericException(ApiResponse.error("ACCOUNT_NOT_VERIFIED", "Please verify your account"));
@@ -88,11 +88,23 @@ public class VerifyService implements IVerifyService {
     public ServiceReply verifyEmail(String username) {
         ServiceReply serviceReply = new ServiceReply();
         Map<String, Object> map = new HashMap<>();
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameOrEmail(username, username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
         user.setIsEmailVerified(true);
         userRepository.save(user);
+
+        map.put("message", "Email verified");
+
+        serviceReply.setHttpStatusCode(HttpStatusCode.valueOf(200));
+        serviceReply.setReply(map);
+        return serviceReply;
+    }
+
+    @Override
+    public ServiceReply forgotPassword(String username) {
+        ServiceReply serviceReply = new ServiceReply();
+        Map<String, Object> map = new HashMap<>();
 
         map.put("message", "Email verified");
 
