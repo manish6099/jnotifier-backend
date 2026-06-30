@@ -7,21 +7,13 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public class ApplicationRequest {
+public class ApplicationUpdateRequest {
 
 	@NotBlank
-	private String title;
+	@NotNull
+	private Long applicationId;
 
 	private String tags;
-
-	@NotNull
-	private LocalDate applicationStartDate;
-
-	@NotNull
-	private LocalDate applicationEndDate;
-
-	@Size(max = 100)
-	private String advNo;
 
 	@Size(max = 700)
 	private String shortDescription;
@@ -35,12 +27,12 @@ public class ApplicationRequest {
 
 	private String advFileName;
 
-	public String getTitle() {
-		return title;
+	public Long getApplicationId() {
+		return applicationId;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setApplicationId(Long applicationId) {
+		this.applicationId = applicationId;
 	}
 
 	public String getTags() {
@@ -49,22 +41,6 @@ public class ApplicationRequest {
 
 	public void setTags(String tags) {
 		this.tags = tags;
-	}
-
-	public LocalDate getApplicationStartDate() {
-		return applicationStartDate;
-	}
-
-	public void setApplicationStartDate(LocalDate applicationStartDate) {
-		this.applicationStartDate = applicationStartDate;
-	}
-
-	public LocalDate getApplicationEndDate() {
-		return applicationEndDate;
-	}
-
-	public void setApplicationEndDate(LocalDate applicationEndDate) {
-		this.applicationEndDate = applicationEndDate;
 	}
 
 	public String getShortDescription() {
@@ -81,14 +57,6 @@ public class ApplicationRequest {
 
 	public void setStatus(Boolean status) {
 		this.status = status;
-	}
-
-	public String getAdvNo() {
-		return advNo;
-	}
-
-	public void setAdvNo(String advNo) {
-		this.advNo = advNo;
 	}
 
 	public String getViewPageDescription() {
