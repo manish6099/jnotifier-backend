@@ -1,0 +1,43 @@
+package com.jnotifier.payload.response;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+public class ProtectedJobApplicationResponse extends JobApplicationResponse {
+    private LocalDateTime createdOn;
+    private LocalDateTime lastUpdatedOn;
+    private Boolean status;
+
+    public ProtectedJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate,
+                                           String shortDescription, String advNo, long applicationId, LocalDateTime createdOn,
+                                           LocalDateTime lastUpdatedOn, Boolean status) {
+        super(title, tags, applicationStartDate, applicationEndDate, shortDescription, advNo, applicationId);
+        this.createdOn = createdOn;
+        this.lastUpdatedOn = lastUpdatedOn;
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public LocalDateTime getLastUpdatedOn() {
+        return lastUpdatedOn;
+    }
+
+    public void setLastUpdatedOn(LocalDateTime lastUpdatedOn) {
+        this.lastUpdatedOn = lastUpdatedOn;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+}

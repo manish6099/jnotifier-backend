@@ -77,6 +77,14 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Application> findAllPageable(String createdBy, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return applicationRepository.findByCreatedBy(createdBy, pageable);
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
     public Application findById(Long id) {
         return applicationRepository.findById(id)
                 .orElseThrow(() -> new GenericException(ApiResponse.error("RESOURCE_NOT_FOUND", "Application not found with id: " + id)));

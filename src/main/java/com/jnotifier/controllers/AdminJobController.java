@@ -6,6 +6,9 @@ import java.util.List;
 
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.payload.request.ApplicationStatusRequest;
+import com.jnotifier.payload.response.JobApplicationResponse;
+import com.jnotifier.payload.response.ProtectedJobApplicationResponse;
 import com.jnotifier.services.core.FileStorageService;
 import jakarta.validation.Valid;
 
@@ -84,6 +87,29 @@ public class AdminJobController {
         return ResponseEntity.ok(ApiResponse.success(saved));
     }
 
+    @GetMapping("/jobs")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<PaginatedResponse<ProtectedJobApplicationResponse>>> getActiveJobList(Authentication authentication,
+                                                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                                                            @RequestParam(defaultValue = "10") int size) {
+        String createdBy = authentication.getName();
+        Page<ProtectedJobApplicationResponse> jobsPage = applicationService.findAllPageable(createdBy, page, size)
+                .map(app -> new ProtectedJobApplicationResponse(
+                        app.getTitle(),
+                        app.getTags(),
+                        app.getApplicationStartDate(),
+                        app.getApplicationEndDate(),
+                        app.getShortDescription(),
+                        app.getAdvertisementNo(),
+                        app.getId(),
+                        app.getCreatedAt(),
+                        app.getUpdatedAt(),
+                        app.getStatus()
+                ));
+
+        return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
+    }
+
     @PutMapping("/applications/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Application>> updateApplication(@PathVariable Long id,
@@ -95,8 +121,8 @@ public class AdminJobController {
     @PatchMapping("/applications/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Application>> updateApplicationStatus(@PathVariable Long id,
-                                                                            @RequestParam("active") Boolean active) {
-        Application updated = applicationService.updateStatus(id, active);
+                                                                            @Valid @RequestBody ApplicationStatusRequest request) {
+        Application updated = applicationService.updateStatus(id, request.getActive());
         return ResponseEntity.ok(ApiResponse.success(updated));
     }
 
