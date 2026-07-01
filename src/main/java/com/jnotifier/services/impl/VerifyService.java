@@ -43,11 +43,14 @@ public class VerifyService implements IVerifyService {
         User user = userRepository.findByUsernameOrEmail(username, username)
                 .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_USER", "Invalid credentials")));
 
+        System.out.println("UserID: " + user.getId());
+
         if (!user.getIsEmailVerified())
             throw new GenericException(ApiResponse.error("ACCOUNT_NOT_VERIFIED", "Please verify your account"));
 
         String jwt = jwtUtils.generateTokenFromUsername(user.getUsername());
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user.getId());
+        RefreshToken refreshToken = refreshTokenService.findByUserId(user.getId())
+                .orElseGet(() -> refreshTokenService.createRefreshToken(user.getId()));
 
         List<String> roles = List.of(user.getRole().getName().name());
 

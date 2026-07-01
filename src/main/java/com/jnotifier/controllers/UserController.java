@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.format.DateTimeFormatter;
@@ -32,10 +33,15 @@ public class UserController {
     private UserServices services;
 
     @GetMapping("/get-me")
-    public ResponseEntity<ApiResponse<Object>> getMe() {
+    public ResponseEntity<ApiResponse<Object>> getMe(Authentication authentication) {
         Map<String, String> reply = new HashMap<>();
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse(null);
 
         reply.put("message", "Authenticated");
+        reply.put("role", role);
         return ResponseEntity.ok(ApiResponse.success(reply));
     }
 

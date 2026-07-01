@@ -64,4 +64,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public int deleteByUserId(Long userId) {
         return refreshTokenRepository.deleteByUser(userRepository.findById(userId).get());
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<RefreshToken> findByUserId(Long userId) {
+        return refreshTokenRepository.findByUserId(userId);
+    }
 }

@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RefreshTokenExpiredException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ApiResponse<?> handleRefreshTokenExpiredException(TokenRefreshException ex) {
+    public ApiResponse<?> handleRefreshTokenExpiredException(RefreshTokenExpiredException ex) {
         String requestId = MDC.get("requestId");
         logger.error("[Request ID: {}] Token refresh error occurred: {}", requestId, ex.getMessage(), ex);
         return ApiResponse.error("TOKEN_REFRESH_EXPIRED", ex.getMessage());

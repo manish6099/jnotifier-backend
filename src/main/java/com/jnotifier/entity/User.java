@@ -54,10 +54,10 @@ public class User extends BaseEntity {
     private Role role;
 
     @Column(name = "is_pwd")
-    private Boolean isPwd;
+    private Boolean isPwd = false;
 
     @Column(name = "is_email_verified")
-    private Boolean isEmailVerified;
+    private Boolean isEmailVerified =  false;
 
     public User() {
     }
