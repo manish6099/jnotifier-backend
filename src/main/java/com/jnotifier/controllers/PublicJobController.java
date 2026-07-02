@@ -9,6 +9,7 @@ import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.Application;
 import com.jnotifier.payload.response.*;
 import com.jnotifier.services.core.FileStorageService;
+import com.jnotifier.services.impl.ViewsServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -33,6 +34,9 @@ public class PublicJobController {
 
     @Autowired
     private FileStorageService fileStorageService;
+
+    @Autowired
+    private ViewsServiceImpl viewsService;
 
     @GetMapping("/jobs")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
@@ -96,5 +100,17 @@ public class PublicJobController {
                 .contentLength(resource.contentLength())
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @PostMapping("/views")
+    public ResponseEntity<ApiResponse<?>> saveViews(HttpServletRequest request) throws IOException {
+        String ipAddress = request.getHeader("X-FORWARDED-FOR");
+
+        if (ipAddress == null || ipAddress.isEmpty()) {
+            ipAddress = request.getRemoteAddr();
+        }
+
+        ServiceReply reply = viewsService.addView(ipAddress);
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 }
