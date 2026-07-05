@@ -18,6 +18,8 @@ public interface INoticeService {
 
     public ServiceReply markAsArchived(Long id);
 
+    public ServiceReply markAsActive(Long id);
+
     /* GET METHODS */
     public ServiceReply getAllActiveNotices(String createdBy, Pageable pageable);
 
@@ -26,4 +28,6 @@ public interface INoticeService {
     public ServiceReply getNotice(Long id);
 
     public ServiceReply getAllArchivedNotices(String createdBy, Pageable pageable);
+
+    public ServiceReply getAllUserNotices(String createdBy, Pageable pageable);
 }

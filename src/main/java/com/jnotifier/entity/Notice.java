@@ -11,7 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public class Notice extends BaseEntity {
     @NotNull(message = "Notice title is mandatory")
     @NotBlank(message = "Notice title cannot be blank.")
-    @Column(name = "title", columnDefinition = "VARCHAR(32)")
+    @Column(name = "title", columnDefinition = "VARCHAR(100)")
     private String title;
 
     @NotNull(message = "Notice description is mandatory")

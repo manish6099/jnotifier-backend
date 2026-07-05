@@ -1,9 +1,12 @@
 package com.jnotifier.payload.request;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import org.springframework.web.multipart.MultipartFile;
 
 public class AddNewNoticeRequest {
     @NotNull(message = "Notice title is required.")
+    @Size(max = 100, message = "Notice title is too long.")
     private String noticeTitle;
 
     @NotNull(message = "Notice title is required.")
@@ -11,17 +14,21 @@ public class AddNewNoticeRequest {
 
     private String noticeAdvertisement;
 
+    @NotNull(message = "Notice advertisement file is required")
+    private MultipartFile noticeAdvFile;
+
     @NotNull(message = "Notice tags is required")
     private String noticeTags;
 
     public AddNewNoticeRequest() {
     }
 
-    public AddNewNoticeRequest(String title, String desc, String advertisement, String tags) {
+    public AddNewNoticeRequest(String title, String desc, String advertisement, String tags, MultipartFile noticeAdvFile) {
         this.noticeTitle = title;
         this.noticeDesc = desc;
         this.noticeAdvertisement = advertisement;
         this.noticeTags = tags;
+        this.noticeAdvFile = noticeAdvFile;
     }
 
     public String getNoticeTitle() {
@@ -54,5 +61,13 @@ public class AddNewNoticeRequest {
 
     public void setNoticeTags(String noticeTags) {
         this.noticeTags = noticeTags;
+    }
+
+    public MultipartFile getNoticeAdvFile() {
+        return noticeAdvFile;
+    }
+
+    public void setNoticeAdvFile(MultipartFile noticeAdvFile) {
+        this.noticeAdvFile = noticeAdvFile;
     }
 }

@@ -29,9 +29,8 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<?>> addNotice(@Valid @ModelAttribute AddNewNoticeRequest notice,
-                                                    @RequestParam("noticeAdvertisement") MultipartFile noticeAdvertisement) throws IOException {
-        ServiceReply reply = noticeService.addNewNotice(notice, noticeAdvertisement);
+    public ResponseEntity<ApiResponse<?>> addNotice(@Valid @ModelAttribute AddNewNoticeRequest notice) throws IOException {
+        ServiceReply reply = noticeService.addNewNotice(notice, notice.getNoticeAdvFile());
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 
@@ -41,12 +40,34 @@ public class NoticeController {
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 
+    @PutMapping("/archive/{noticeId}")
+    public ResponseEntity<ApiResponse<?>> markAsArchive(@Valid @PathVariable Long noticeId) {
+        ServiceReply reply = noticeService.markAsArchived(noticeId);
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @PutMapping("/activate/{noticeId}")
+    public ResponseEntity<ApiResponse<?>> markAsActive(@Valid @PathVariable Long noticeId) {
+        ServiceReply reply = noticeService.markAsActive(noticeId);
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<?>> getAllActiveNotices(Authentication authentication, @RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         String createdBy = authentication.getName();
         ServiceReply reply = noticeService.getAllActiveNotices(createdBy, pageable);
+
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<?>> getAllUserNotices(Authentication authentication, @RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        String createdBy = authentication.getName();
+        ServiceReply reply = noticeService.getAllUserNotices(createdBy, pageable);
 
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }

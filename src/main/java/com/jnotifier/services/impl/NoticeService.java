@@ -29,7 +29,8 @@ public class NoticeService implements INoticeService {
 
     @Override
     public ServiceReply addNewNotice(AddNewNoticeRequest request, MultipartFile noticeAdvertisement) throws IOException {
-        if (noticeAdvertisement.isEmpty()) throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload notice advertisement file"));
+        if (noticeAdvertisement.isEmpty())
+            throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload notice advertisement file"));
 
         String advFilename = noticeAdvertisement.getOriginalFilename();
         String advContentType = noticeAdvertisement.getContentType();
@@ -41,7 +42,7 @@ public class NoticeService implements INoticeService {
 
         long fileSize = noticeAdvertisement.getSize() / (1024 * 1024);
 
-        if (fileSize >=5)
+        if (fileSize >= 5)
             throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
 
         byte[] fileBytes = noticeAdvertisement.getBytes();
@@ -53,7 +54,7 @@ public class NoticeService implements INoticeService {
 
         noticeRepository.save(notice);
         map.put("message", "Notice added");
-        map.put("data", notice);
+        map.put("notice", notice);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
@@ -89,6 +90,18 @@ public class NoticeService implements INoticeService {
 
     @Override
     public ServiceReply markAsArchived(Long id) {
+        Notice notice = noticeRepository.findById(id)
+                .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_NOTICE", "This notice does not exist")));
+        Map<String, Object> map = new HashMap<>();
+
+        notice.setIsActive(false);
+        noticeRepository.save(notice);
+        map.put("message", "Notice marked as archived.");
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply markAsActive(Long id) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_NOTICE", "This notice does not exist")));
         Map<String, Object> map = new HashMap<>();
@@ -135,6 +148,16 @@ public class NoticeService implements INoticeService {
         Page<Notice> notices = noticeRepository.findByIsActive(false, createdBy, pageable);
 
         map.put("message", "All archived notices are fetched successfully");
+        map.put("list", notices);
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getAllUserNotices(String createdBy, Pageable pageable){
+        Map<String, Object> map = new HashMap<>();
+        Page<Notice> notices = noticeRepository.findAllUserNotices(createdBy, pageable);
+
+        map.put("message", "All user's notices are fetched successfully");
         map.put("list", notices);
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
