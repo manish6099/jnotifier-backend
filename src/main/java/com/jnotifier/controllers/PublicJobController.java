@@ -9,13 +9,18 @@ import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.Application;
 import com.jnotifier.payload.response.*;
 import com.jnotifier.services.core.FileStorageService;
+import com.jnotifier.services.impl.NoticeService;
 import com.jnotifier.services.impl.ViewsServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
@@ -37,6 +42,9 @@ public class PublicJobController {
 
     @Autowired
     private ViewsServiceImpl viewsService;
+
+    @Autowired
+    private NoticeService noticeService;
 
     @GetMapping("/jobs")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
@@ -111,6 +119,21 @@ public class PublicJobController {
         }
 
         ServiceReply reply = viewsService.addView(ipAddress);
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/notices")
+    public ResponseEntity<ApiResponse<?>> getAllActiveNotices(@RequestParam(defaultValue = "0") int page,
+                                                              @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        ServiceReply reply = noticeService.getAllActivePublicNotices(pageable);
+
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/notice/{noticeId}")
+    public ResponseEntity<ApiResponse<?>> getActiveNotice(@PathVariable Long noticeId) {
+        ServiceReply reply = noticeService.getNotice(noticeId);
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 }

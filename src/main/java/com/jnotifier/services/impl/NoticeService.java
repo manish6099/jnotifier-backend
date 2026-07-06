@@ -123,6 +123,16 @@ public class NoticeService implements INoticeService {
     }
 
     @Override
+    public ServiceReply getAllActivePublicNotices(Pageable pageable) {
+        Map<String, Object> map = new HashMap<>();
+        Page<Notice> notices = noticeRepository.findByIsActivePublic(true, pageable);
+
+        map.put("message", "All active notices are fetched successfully");
+        map.put("list", notices);
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
     public ServiceReply getAllDeletedNotices(String createdBy, Pageable pageable) {
         Map<String, Object> map = new HashMap<>();
         Page<Notice> notices = noticeRepository.findByIsDeleted(true, createdBy, pageable);

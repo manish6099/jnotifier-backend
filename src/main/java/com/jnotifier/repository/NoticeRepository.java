@@ -14,6 +14,9 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     @Query(NoticeQueries.GET_NOTICE_BY_ACTIVE_STATUS)
     Page<Notice> findByIsActive(@Param("isActive") Boolean isActive, @Param("createdBy") String createdBy, Pageable pageable);
 
+    @Query(NoticeQueries.GET_NOTICE_BY_ACTIVE_STATUS_PUBLIC)
+    Page<Notice> findByIsActivePublic(@Param("isActive") Boolean isActive, Pageable pageable);
+
     @Query(NoticeQueries.GET_NOTICE_BY_DELETION_STATUS)
     Page<Notice> findByIsDeleted(@Param("isDeleted") Boolean isDeleted, @Param("createdBy") String createdBy, Pageable pageable);
 
