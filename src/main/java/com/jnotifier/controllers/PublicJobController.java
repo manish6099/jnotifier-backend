@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.Application;
+import com.jnotifier.helpers.NetworkHelper;
 import com.jnotifier.payload.response.*;
 import com.jnotifier.services.core.FileStorageService;
 import com.jnotifier.services.impl.NoticeService;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
@@ -45,6 +45,9 @@ public class PublicJobController {
 
     @Autowired
     private NoticeService noticeService;
+
+    @Autowired
+    private NetworkHelper networkHelper;
 
     @GetMapping("/jobs")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
@@ -112,12 +115,7 @@ public class PublicJobController {
 
     @PostMapping("/views")
     public ResponseEntity<ApiResponse<?>> saveViews(HttpServletRequest request) throws IOException {
-        String ipAddress = request.getHeader("X-FORWARDED-FOR");
-
-        if (ipAddress == null || ipAddress.isEmpty()) {
-            ipAddress = request.getRemoteAddr();
-        }
-
+        String ipAddress = networkHelper.extractClientIp(request);
         ServiceReply reply = viewsService.addView(ipAddress);
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
