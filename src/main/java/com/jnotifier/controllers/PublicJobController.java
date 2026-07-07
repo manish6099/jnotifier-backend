@@ -3,11 +3,12 @@ package com.jnotifier.controllers;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.entity.Application;
-import com.jnotifier.helpers.NetworkHelper;
+import com.jnotifier.helpers.ViewsHelper;
 import com.jnotifier.payload.response.*;
 import com.jnotifier.services.core.FileStorageService;
 import com.jnotifier.services.impl.NoticeService;
@@ -47,7 +48,7 @@ public class PublicJobController {
     private NoticeService noticeService;
 
     @Autowired
-    private NetworkHelper networkHelper;
+    private ViewsHelper viewsHelper;
 
     @GetMapping("/jobs")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
@@ -115,8 +116,9 @@ public class PublicJobController {
 
     @PostMapping("/views")
     public ResponseEntity<ApiResponse<?>> saveViews(HttpServletRequest request) throws IOException {
-        String ipAddress = networkHelper.extractClientIp(request);
-        ServiceReply reply = viewsService.addView(ipAddress);
+        Map<String, String> clientDetails = viewsHelper.getClientDetails(request);
+
+        ServiceReply reply = viewsService.addView(clientDetails);
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 
