@@ -14,7 +14,6 @@ public class AddNewNoticeRequest {
 
     private String noticeAdvertisement;
 
-    @NotNull(message = "Notice advertisement file is required")
     private MultipartFile noticeAdvFile;
 
     @NotNull(message = "Notice tags is required")

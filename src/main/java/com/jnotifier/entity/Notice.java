@@ -19,10 +19,8 @@ public class Notice extends BaseEntity {
     @Column(name = "notice_desc", columnDefinition = "TEXT")
     private String noticeDescription;
 
-    @NotNull(message = "Notice detailed advertisement is mandatory")
-    @NotBlank(message = "Notice detailed advertisement cannot be blank.")
     @Column(name = "notice_detailed_adv", columnDefinition = "TEXT")
-    private String noticeDetailedAdv;
+    private String noticeDetailedAdv = null;
 
     @NotNull(message = "Notice tags is mandatory")
     @NotBlank(message = "Notice tags cannot be blank.")
@@ -36,6 +34,12 @@ public class Notice extends BaseEntity {
     private Boolean isDeleted = false;
 
     public Notice() {
+    }
+
+    public Notice(String title, String noticeDescription, String tags) {
+        this.title = title;
+        this.noticeDescription = noticeDescription;
+        this.tags = tags;
     }
 
     public Notice(String title, String noticeDescription, String tags, String noticeDetailedAdv) {

@@ -29,29 +29,32 @@ public class NoticeService implements INoticeService {
 
     @Override
     public ServiceReply addNewNotice(AddNewNoticeRequest request, MultipartFile noticeAdvertisement) throws IOException {
-        if (noticeAdvertisement.isEmpty())
-            throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload notice advertisement file"));
+        Notice notice;
 
-        String advFilename = noticeAdvertisement.getOriginalFilename();
-        String advContentType = noticeAdvertisement.getContentType();
-        boolean hasMdExtension = advFilename != null && advFilename.toLowerCase().endsWith(".md");
-        boolean hasMdMimeType = "text/markdown".equalsIgnoreCase(advContentType);
+        if (noticeAdvertisement!= null && !noticeAdvertisement.isEmpty()) {
+            String advFilename = noticeAdvertisement.getOriginalFilename();
+            String advContentType = noticeAdvertisement.getContentType();
+            boolean hasMdExtension = advFilename != null && advFilename.toLowerCase().endsWith(".md");
+            boolean hasMdMimeType = "text/markdown".equalsIgnoreCase(advContentType);
 
-        if (!hasMdExtension && !hasMdMimeType)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a markdown file."));
+            if (!hasMdExtension && !hasMdMimeType)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a markdown file."));
 
-        long fileSize = noticeAdvertisement.getSize() / (1024 * 1024);
+            long fileSize = noticeAdvertisement.getSize() / (1024 * 1024);
 
-        if (fileSize >= 5)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+            if (fileSize >= 5)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
 
-        byte[] fileBytes = noticeAdvertisement.getBytes();
-        String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
-        request.setNoticeAdvertisement(markdownContent);
+            byte[] fileBytes = noticeAdvertisement.getBytes();
+            String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
 
-        Notice notice = new Notice(request.getNoticeTitle(), request.getNoticeDesc(), request.getNoticeTags(), request.getNoticeAdvertisement());
+            request.setNoticeAdvertisement(markdownContent);
+            notice = new Notice(request.getNoticeTitle(), request.getNoticeDesc(), request.getNoticeTags(), request.getNoticeAdvertisement());
+        } else {
+            notice = new Notice(request.getNoticeTitle(), request.getNoticeDesc(), request.getNoticeTags());
+        }
+
         Map<String, Object> map = new HashMap<>();
-
         noticeRepository.save(notice);
         map.put("message", "Notice added");
         map.put("notice", notice);
@@ -163,7 +166,7 @@ public class NoticeService implements INoticeService {
     }
 
     @Override
-    public ServiceReply getAllUserNotices(String createdBy, Pageable pageable){
+    public ServiceReply getAllUserNotices(String createdBy, Pageable pageable) {
         Map<String, Object> map = new HashMap<>();
         Page<Notice> notices = noticeRepository.findAllUserNotices(createdBy, pageable);
 
