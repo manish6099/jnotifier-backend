@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping(JNotifierConstants.API_BASE_URL + "/users")
@@ -58,7 +59,7 @@ public class UserController {
         reply.put("email", user.getEmail());
         reply.put("username", user.getUsername());
         reply.put("category", user.getCategory());
-        reply.put("isPwd", user.getIsPwd().toString());
+        reply.put("isPwd", Optional.ofNullable(user.getIsPwd()).orElse(false).toString());
         reply.put("dob", user.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         reply.put("gender", user.getGender());
 

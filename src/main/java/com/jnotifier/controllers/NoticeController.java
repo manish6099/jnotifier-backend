@@ -32,9 +32,9 @@ public class NoticeController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<ApiResponse<?>> updateNotice(@Valid @RequestBody UpdateNoticeRequest notice) {
+    public ResponseEntity<ApiResponse<?>> updateNotice(@Valid @ModelAttribute UpdateNoticeRequest notice) {
         ServiceReply reply = noticeService.updateNotice(notice);
-        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+        return ResponseEntity.status(reply.getHttpStatusCode()).build();
     }
 
     @PutMapping("/archive/{noticeId}")
@@ -47,6 +47,12 @@ public class NoticeController {
     public ResponseEntity<ApiResponse<?>> markAsActive(@Valid @PathVariable Long noticeId) {
         ServiceReply reply = noticeService.markAsActive(noticeId);
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @DeleteMapping("/delete/{noticeId}")
+    public ResponseEntity<ApiResponse<?>> deleteNotice(@Valid @PathVariable Long noticeId) {
+        ServiceReply reply = noticeService.deleteNotice(noticeId);
+        return ResponseEntity.status(reply.getHttpStatusCode()).build();
     }
 
     @GetMapping("/active")

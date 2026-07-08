@@ -29,4 +29,9 @@ public class ServiceReply {
         this.reply = reply;
         return this;
     }
+
+    public ServiceReply build(HttpStatusCode httpStatusCode) {
+        this.httpStatusCode = httpStatusCode;
+        return this;
+    }
 }

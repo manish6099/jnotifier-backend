@@ -31,7 +31,7 @@ public class NoticeService implements INoticeService {
     public ServiceReply addNewNotice(AddNewNoticeRequest request, MultipartFile noticeAdvertisement) throws IOException {
         Notice notice;
 
-        if (noticeAdvertisement!= null && !noticeAdvertisement.isEmpty()) {
+        if (noticeAdvertisement != null && !noticeAdvertisement.isEmpty()) {
             String advFilename = noticeAdvertisement.getOriginalFilename();
             String advContentType = noticeAdvertisement.getContentType();
             boolean hasMdExtension = advFilename != null && advFilename.toLowerCase().endsWith(".md");
@@ -66,29 +66,24 @@ public class NoticeService implements INoticeService {
     public ServiceReply updateNotice(UpdateNoticeRequest request) {
         Notice notice = noticeRepository.findById(request.getNoticeId())
                 .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_NOTICE", "This notice does not exist")));
-        Map<String, Object> map = new HashMap<>();
 
-        notice.setTitle(Optional.of(request.getNoticeTitle()).orElse(notice.getTitle()));
-        notice.setNoticeDescription(Optional.of(request.getNoticeDesc()).orElse(notice.getNoticeDescription()));
-        notice.setNoticeDetailedAdv(Optional.of(request.getNoticeAdvertisement()).orElse(notice.getNoticeDetailedAdv()));
-        notice.setTags(Optional.of(request.getNoticeTags()).orElse(notice.getTags()));
+        notice.setTitle(Optional.ofNullable(request.getNoticeTitle()).orElse(notice.getTitle()));
+        notice.setNoticeDescription(Optional.ofNullable(request.getNoticeDesc()).orElse(notice.getNoticeDescription()));
+        notice.setTags(Optional.ofNullable( request.getNoticeTags()).orElse(notice.getTags()));
 
         noticeRepository.save(notice);
-        map.put("message", "Notice updated");
-        map.put("data", notice);
-        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
     }
 
     @Override
     public ServiceReply deleteNotice(Long id) {
         Notice notice = noticeRepository.findById(id)
                 .orElseThrow(() -> new GenericException(ApiResponse.error("INVALID_NOTICE", "This notice does not exist")));
-        Map<String, Object> map = new HashMap<>();
 
         notice.setIsDeleted(true);
         noticeRepository.save(notice);
-        map.put("message", "Notice deleted");
-        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
     }
 
     @Override

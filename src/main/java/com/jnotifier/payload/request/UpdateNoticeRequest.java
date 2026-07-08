@@ -10,17 +10,14 @@ public class UpdateNoticeRequest {
 
     private String noticeDesc;
 
-    private String noticeAdvertisement;
-
     private String noticeTags;
 
     public UpdateNoticeRequest() {
     }
 
-    public UpdateNoticeRequest(Long noticeId, String title, String desc, String advertisement, String tags) {
+    public UpdateNoticeRequest(Long noticeId, String title, String desc, String tags) {
         this.noticeTitle = title;
         this.noticeDesc = desc;
-        this.noticeAdvertisement = advertisement;
         this.noticeTags = tags;
         this.noticeId = noticeId;
     }
@@ -39,14 +36,6 @@ public class UpdateNoticeRequest {
 
     public void setNoticeDesc(String noticeDesc) {
         this.noticeDesc = noticeDesc;
-    }
-
-    public String getNoticeAdvertisement() {
-        return noticeAdvertisement;
-    }
-
-    public void setNoticeAdvertisement(String noticeAdvertisement) {
-        this.noticeAdvertisement = noticeAdvertisement;
     }
 
     public String getNoticeTags() {
