@@ -93,7 +93,8 @@ public class PublicJobController {
     }
 
     @GetMapping("/uploads/{filename:.+}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename, HttpServletRequest request) throws MalformedURLException, IOException {
+    public ResponseEntity<Resource> getFile(@PathVariable String filename, HttpServletRequest request)
+            throws MalformedURLException, IOException {
         // 1. Load the file as a resource
         Resource resource = fileStorageService.loadFileAsResource(filename);
 
