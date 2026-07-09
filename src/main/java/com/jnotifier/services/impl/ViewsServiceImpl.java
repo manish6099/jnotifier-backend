@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,11 +47,11 @@ public class ViewsServiceImpl implements IViewsService {
     @Override
     public ServiceReply getPageViews(String visitedPage) {
         Map<String, Object> map = new HashMap<>();
-        PageViewsPojo pageViews = viewsRepository.findPageViews(visitedPage)
-                .orElseThrow(() -> new GenericException(ApiResponse.error("PAGE_VIEW_ERR", "No views found")));
+        List<PageViewsPojo> pageViews = viewsRepository.findPageViews(visitedPage);
+        Long totalViews = pageViews.stream().map(PageViewsPojo::getPageViews).reduce(0L,Long::sum);
 
         map.put("message", "Page views fetched successfully.");
-        map.put("views", pageViews);
+        map.put("views", totalViews);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }

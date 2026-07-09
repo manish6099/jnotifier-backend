@@ -1,20 +1,16 @@
 package com.jnotifier.helpers.query;
 
 public class ViewsQueries {
-    public static final String GET_PAGE_VIEWS = "SELECT\n" +
-            "\tIP_ADDRESS,\n" +
-            "\tVISITED_DATE,\n" +
-            "\tCOUNT(IP_ADDRESS) AS PAGE_VIEWS,\n" +
-            "\tVISITED_PAGE\n" +
-            "FROM\n" +
-            "\tPUBLIC.VIEWS\n" +
-            "WHERE\n" +
-            "\tVISITED_PAGE = :visitedPage \n" +
-            "GROUP BY\n" +
-            "\tIP_ADDRESS,\n" +
-            "\tVISITED_DATE,\n" +
-            "\tVISITED_PAGE\n" +
-            "HAVING\n" +
-            "\tVISITED_DATE IS NOT NULL\n" +
-            "\tAND VISITED_PAGE IS NOT NULL;";
+    public static final String GET_PAGE_VIEWS =
+            "SELECT new com.jnotifier.payload.pojo.PageViewsPojo(" +
+                    "   v.ipAddress, " +
+                    "   v.visitedDate, " +
+                    "   COUNT(v.ipAddress), " +
+                    "   v.visitedPage" +
+                    ") " +
+                    "FROM Views v " + // Assumes your @Entity class is named 'Views'
+                    "WHERE v.visitedPage = :visitedPage " +
+                    "  AND v.visitedDate IS NOT NULL " +
+                    "  AND v.visitedPage IS NOT NULL " +
+                    "GROUP BY v.ipAddress, v.visitedDate, v.visitedPage";
 }

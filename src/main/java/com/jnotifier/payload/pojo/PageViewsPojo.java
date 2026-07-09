@@ -3,13 +3,13 @@ package com.jnotifier.payload.pojo;
 public class PageViewsPojo {
     private String ipAddress;
     private String visitedDate;
-    private String pageViews;
+    private Long pageViews;
     private String visitedPage;
 
     public PageViewsPojo() {
     }
 
-    public PageViewsPojo(String ipAddress, String visitedDate, String pageViews, String visitedPage) {
+    public PageViewsPojo(String ipAddress, String visitedDate, Long pageViews, String visitedPage) {
         this.ipAddress = ipAddress;
         this.visitedDate = visitedDate;
         this.pageViews = pageViews;
@@ -32,11 +32,11 @@ public class PageViewsPojo {
         this.visitedDate = visitedDate;
     }
 
-    public String getPageViews() {
+    public Long getPageViews() {
         return pageViews;
     }
 
-    public void setPageViews(String pageViews) {
+    public void setPageViews(Long pageViews) {
         this.pageViews = pageViews;
     }
 
