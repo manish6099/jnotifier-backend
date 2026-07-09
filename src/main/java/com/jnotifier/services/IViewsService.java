@@ -6,4 +6,5 @@ import java.util.Map;
 
 public interface IViewsService {
     public ServiceReply addView(Map<String,String> clientDetails);
+    public ServiceReply getPageViews(String visitedPage);
 }

@@ -1,6 +1,9 @@
 package com.jnotifier.services.impl;
 
 import com.jnotifier.entity.Views;
+import com.jnotifier.exception.GenericException;
+import com.jnotifier.payload.pojo.PageViewsPojo;
+import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.repository.ViewsRepository;
 import com.jnotifier.services.IViewsService;
@@ -12,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ViewsServiceImpl implements IViewsService {
@@ -37,5 +41,17 @@ public class ViewsServiceImpl implements IViewsService {
         map.put("message", "Thanks for visiting JNotifier.");
         return new ServiceReply()
                 .build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getPageViews(String visitedPage) {
+        Map<String, Object> map = new HashMap<>();
+        PageViewsPojo pageViews = viewsRepository.findPageViews(visitedPage)
+                .orElseThrow(() -> new GenericException(ApiResponse.error("PAGE_VIEW_ERR", "No views found")));
+
+        map.put("message", "Page views fetched successfully.");
+        map.put("views", pageViews);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
 }
