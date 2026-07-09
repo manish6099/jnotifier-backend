@@ -7,14 +7,16 @@ public class ProtectedJobApplicationResponse extends JobApplicationResponse {
     private LocalDateTime createdOn;
     private LocalDateTime lastUpdatedOn;
     private Boolean status;
+    private String viewPageDescription;
 
     public ProtectedJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate,
                                            String shortDescription, String advNo, long applicationId, LocalDateTime createdOn,
-                                           LocalDateTime lastUpdatedOn, Boolean status) {
+                                           LocalDateTime lastUpdatedOn, Boolean status, String viewPageDescription) {
         super(title, tags, applicationStartDate, applicationEndDate, shortDescription, advNo, applicationId);
         this.createdOn = createdOn;
         this.lastUpdatedOn = lastUpdatedOn;
         this.status = status;
+        this.viewPageDescription = viewPageDescription;
     }
 
     public LocalDateTime getCreatedOn() {
@@ -39,5 +41,13 @@ public class ProtectedJobApplicationResponse extends JobApplicationResponse {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public String getViewPageDescription() {
+        return viewPageDescription;
+    }
+
+    public void setViewPageDescription(String viewPageDescription) {
+        this.viewPageDescription = viewPageDescription;
     }
 }
