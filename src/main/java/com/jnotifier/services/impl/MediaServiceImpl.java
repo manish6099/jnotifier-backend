@@ -2,24 +2,29 @@ package com.jnotifier.services.impl;
 
 import com.jnotifier.entity.Media;
 import com.jnotifier.exception.GenericException;
-import com.jnotifier.payload.request.AddNewMediaRequest;
 import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.repository.MediaRepository;
 import com.jnotifier.services.IMediaService;
 import com.jnotifier.services.core.FileStorageService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Service
 public class MediaServiceImpl implements IMediaService {
@@ -48,18 +53,18 @@ public class MediaServiceImpl implements IMediaService {
 
         long fileSize = file.getSize() / (1024 * 1024);
 
-        if (fileSize >= 5)
+        if (fileSize >= 10)
             throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
 
         String fileUri = fileStorageService.saveFile(file);
 
-        Media media = new Media(fileName, contentType.toLowerCase(), fileSize, fileUri);
+        Media media = new Media(fileName, contentType.toLowerCase(), file.getSize(), fileUri);
         mediaRepository.save(media);
 
         Map<String, Object> map = new HashMap<>();
 
         map.put("message", "File successfully uploaded.");
-        map.put("fileUri", "/uploads/" + fileUri);
+        map.put("fileUri", "/downloads/" + fileUri);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(201), map);
     }
@@ -76,12 +81,12 @@ public class MediaServiceImpl implements IMediaService {
     }
 
     @Override
-    public ServiceReply listAllMedia(int page, int size) {
+    public ServiceReply listAllMedia(String createdBy, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<Media> mediaList = mediaRepository.findAll(pageable);
+        Page<Media> mediaList = mediaRepository.findAllMediaByCreatedBy(createdBy, pageable);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("mediaList", mediaList);
+        map.put("list", mediaList);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
@@ -104,5 +109,27 @@ public class MediaServiceImpl implements IMediaService {
         mediaRepository.save(media);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200));
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadMedia(String fileName, HttpServletRequest request) throws IOException {
+        // 1. Load the file as a resource
+        Resource resource = fileStorageService.loadFileAsResource(fileName);
+
+        // 2. Determine the file's content type (e.g., image/jpeg, application/pdf)
+        String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+
+        // Fallback to the default type if the type could not be determined
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        // 3. Return the file — include Content-Length so reverse proxies (Nginx) can
+        //    stream without buffering the entire response first.
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .contentLength(resource.contentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

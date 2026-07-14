@@ -62,9 +62,10 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(JNotifierConstants.API_BASE_URL+"/auth/**").permitAll()
+                        auth.requestMatchers(JNotifierConstants.API_BASE_URL + "/auth/**").permitAll()
                                 .requestMatchers(JNotifierConstants.API_BASE_URL + "/app/**").permitAll()
-                                .requestMatchers(JNotifierConstants.API_BASE_URL+"/public/**").permitAll()
+                                .requestMatchers(JNotifierConstants.API_BASE_URL + "/public/**").permitAll()
+                                .requestMatchers(JNotifierConstants.API_BASE_URL + "/downloads/**").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .anyRequest().authenticated()
                 );

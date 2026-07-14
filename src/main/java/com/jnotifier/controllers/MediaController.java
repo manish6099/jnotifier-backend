@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,9 +39,10 @@ public class MediaController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<?>> getAllActiveMedia(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<ApiResponse<?>> getAllActiveMedia(Authentication authentication, @RequestParam(defaultValue = "0") int page,
                                                             @RequestParam(defaultValue = "10") int size) {
-        ServiceReply reply = mediaService.listAllMedia(page, size);
+        String createdBy = authentication.getName();
+        ServiceReply reply = mediaService.listAllMedia(createdBy, page, size);
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 }
