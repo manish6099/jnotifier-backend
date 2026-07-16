@@ -8,15 +8,17 @@ public class ProtectedJobApplicationResponse extends JobApplicationResponse {
     private LocalDateTime lastUpdatedOn;
     private Boolean status;
     private String viewPageDescription;
+    private String advUri;
 
     public ProtectedJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate,
                                            String shortDescription, String advNo, long applicationId, LocalDateTime createdOn,
-                                           LocalDateTime lastUpdatedOn, Boolean status, String viewPageDescription) {
+                                           LocalDateTime lastUpdatedOn, Boolean status, String viewPageDescription, String advUri) {
         super(title, tags, applicationStartDate, applicationEndDate, shortDescription, advNo, applicationId);
         this.createdOn = createdOn;
         this.lastUpdatedOn = lastUpdatedOn;
         this.status = status;
         this.viewPageDescription = viewPageDescription;
+        this.advUri = advUri;
     }
 
     public LocalDateTime getCreatedOn() {
@@ -49,5 +51,13 @@ public class ProtectedJobApplicationResponse extends JobApplicationResponse {
 
     public void setViewPageDescription(String viewPageDescription) {
         this.viewPageDescription = viewPageDescription;
+    }
+
+    public String getAdvUri() {
+        return advUri;
+    }
+
+    public void setAdvUri(String advUri) {
+        this.advUri = advUri;
     }
 }

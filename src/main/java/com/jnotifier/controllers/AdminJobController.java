@@ -105,7 +105,8 @@ public class AdminJobController {
                         app.getCreatedAt(),
                         app.getUpdatedAt(),
                         app.getStatus(),
-                        app.getViewPageDescription()
+                        app.getViewPageDescription(),
+                        app.getAdvFileName()
                 ));
 
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));

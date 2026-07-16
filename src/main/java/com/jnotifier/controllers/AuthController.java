@@ -163,6 +163,7 @@ public class AuthController {
 
         Map<String, String> data = new HashMap<>();
         data.put("username", loginRequest.getUsername());
+        data.put("email", user.getEmail());
         data.put("status", "OTP_REQUIRED");
         data.put("message", "OTP verification code has been generated. Please verify to complete sign-in.");
 
@@ -251,31 +252,30 @@ public class AuthController {
 
         JNotifierEnums verificationTypeEnum = JNotifierEnums.fromString(verificationType);
 
-        switch (verificationTypeEnum) {
-            case LOGIN:
-                serviceReply = verifyService.login(otpRequest.getUsername());
-                ResponseCookie refCookie = (ResponseCookie) serviceReply.getReply().get("refCookie");
-                ResponseCookie accessCookie = (ResponseCookie) serviceReply.getReply().get("accessCookie");
-                JwtResponse body = (JwtResponse) serviceReply.getReply().get("jwtResponse");
+        if (verificationTypeEnum == JNotifierEnums.LOGIN) {
+            serviceReply = verifyService.login(otpRequest.getUsername());
+            ResponseCookie refCookie = (ResponseCookie) serviceReply.getReply().get("refCookie");
+            ResponseCookie accessCookie = (ResponseCookie) serviceReply.getReply().get("accessCookie");
+            JwtResponse body = (JwtResponse) serviceReply.getReply().get("jwtResponse");
 
-                return ResponseEntity.status(serviceReply.getHttpStatusCode())
-                        .header(HttpHeaders.SET_COOKIE, refCookie.toString())
-                        .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                        .body(ApiResponse.success(body));
+            return ResponseEntity.status(serviceReply.getHttpStatusCode())
+                    .header(HttpHeaders.SET_COOKIE, refCookie.toString())
+                    .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
+                    .body(ApiResponse.success(body));
 
-            case EMAIL_VERIFY:
-                serviceReply = verifyService.verifyEmail(otpRequest.getUsername());
-                Object response = serviceReply.getReply();
+        } else if (verificationTypeEnum == JNotifierEnums.EMAIL_VERIFY) {
+            serviceReply = verifyService.verifyEmail(otpRequest.getUsername());
+            Object response = serviceReply.getReply();
 
-                return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(response));
+            return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(response));
 
-            case FORGOT_PWD:
-                serviceReply = verifyService.forgotPassword(otpRequest.getUsername());
-                java.lang.Object reply = serviceReply.getReply();
-                return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(reply));
+        } else if (verificationTypeEnum == JNotifierEnums.FORGOT_PWD) {
+            serviceReply = verifyService.forgotPassword(otpRequest.getUsername());
+            java.lang.Object reply = serviceReply.getReply();
+            return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(reply));
 
-            default:
-                return ResponseEntity.badRequest().body(ApiResponse.error("INVALID_VERIFICATION_TYPE", "Invalid verification type."));
+        } else {
+            return ResponseEntity.badRequest().body(ApiResponse.error("INVALID_VERIFICATION_TYPE", "Invalid verification type."));
         }
     }
 
