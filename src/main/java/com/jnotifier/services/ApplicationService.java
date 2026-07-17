@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import com.jnotifier.entity.Application;
 import com.jnotifier.payload.request.ApplicationRequest;
+import org.springframework.data.domain.Pageable;
 
 public interface ApplicationService {
     Application save(ApplicationRequest request);
@@ -24,4 +25,6 @@ public interface ApplicationService {
     Page<Application> findActiveApplications(int page, int size);
 
     Page<Application> findApplicationsForUser(String username, boolean isSuperAdmin, int page, int size);
+
+    Page<Application> findAllArchivedPublicApplications(int page, int size);
 }

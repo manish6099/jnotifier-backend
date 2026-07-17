@@ -113,4 +113,10 @@ public class ApplicationServiceImpl implements ApplicationService {
             return applicationRepository.findByCreatedBy(username, pageable);
         }
     }
+
+    @Override
+    public Page<Application> findAllArchivedPublicApplications(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return applicationRepository.findAllArchivedPublicApplications(pageable);
+    }
 }

@@ -68,6 +68,24 @@ public class PublicJobController {
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
     }
 
+    @GetMapping("/jobs/archived")
+    public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getArchivedJobList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<JobApplicationResponse> jobsPage = applicationService.findAllArchivedPublicApplications(page, size)
+                .map(app -> new JobApplicationResponse(
+                        app.getTitle(),
+                        app.getTags(),
+                        app.getApplicationStartDate(),
+                        app.getApplicationEndDate(),
+                        app.getShortDescription(),
+                        app.getAdvertisementNo(),
+                        app.getId()
+                ));
+
+        return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
+    }
+
     @GetMapping("/applications/{applicationId}/categories")
     public ResponseEntity<ApiResponse<List<CategoryPublicResponse>>> getCategoriesByApplicationId(@PathVariable Long applicationId) {
         List<CategoryPublicResponse> categories = categoryService.findActiveByApplicationId(applicationId).stream()
@@ -94,7 +112,7 @@ public class PublicJobController {
 
     @GetMapping("/uploads/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename, HttpServletRequest request)
-            throws  IOException {
+            throws IOException {
         // 1. Load the file as a resource
         Resource resource = fileStorageService.loadFileAsResource(filename);
 
@@ -128,6 +146,15 @@ public class PublicJobController {
                                                               @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         ServiceReply reply = noticeService.getAllActivePublicNotices(pageable);
+
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/notices/archived")
+    public ResponseEntity<ApiResponse<?>> getAllArchivedNotices(@RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        ServiceReply reply = noticeService.getAllArchivedPublicNotices(pageable);
 
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }

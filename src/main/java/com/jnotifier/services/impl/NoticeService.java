@@ -69,7 +69,7 @@ public class NoticeService implements INoticeService {
 
         notice.setTitle(Optional.ofNullable(request.getNoticeTitle()).orElse(notice.getTitle()));
         notice.setNoticeDescription(Optional.ofNullable(request.getNoticeDesc()).orElse(notice.getNoticeDescription()));
-        notice.setTags(Optional.ofNullable( request.getNoticeTags()).orElse(notice.getTags()));
+        notice.setTags(Optional.ofNullable(request.getNoticeTags()).orElse(notice.getTags()));
 
         noticeRepository.save(notice);
         return new ServiceReply().build(HttpStatusCode.valueOf(204));
@@ -167,6 +167,17 @@ public class NoticeService implements INoticeService {
 
         map.put("message", "All user's notices are fetched successfully");
         map.put("list", notices);
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getAllArchivedPublicNotices(Pageable pageable) {
+        Map<String, Object> map = new HashMap<>();
+        Page<Notice> notices = noticeRepository.findByIsActivePublic(false, pageable);
+
+        map.put("message", "All archived notices are fetched successfully");
+        map.put("list", notices);
+
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
 }

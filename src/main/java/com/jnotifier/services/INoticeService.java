@@ -23,6 +23,8 @@ public interface INoticeService {
     /* GET METHODS */
     public ServiceReply getAllActiveNotices(String createdBy, Pageable pageable);
 
+    public ServiceReply getAllArchivedPublicNotices(Pageable pageable);
+
     public ServiceReply getAllActivePublicNotices(Pageable pageable);
 
     public ServiceReply getAllDeletedNotices(String createdBy, Pageable pageable);
