@@ -115,7 +115,7 @@ public class MediaServiceImpl implements IMediaService {
     public ResponseEntity<Resource> downloadMedia(String fileName, Long mediaId, HttpServletRequest request) throws IOException {
         Media media = mediaRepository.findById(mediaId).orElseThrow(()-> new GenericException(ApiResponse.error("MEDIA_ERR", "Invalid media")));
 
-        if (!media.getIsPublic() || !media.getIsDeleted()) throw new GenericException(ApiResponse.error("MEDIA_TYPE_ERR", "Media has been deleted"));
+        if (!media.getIsPublic() || media.getIsDeleted()) throw new GenericException(ApiResponse.error("MEDIA_TYPE_ERR", "Media has been deleted"));
 
         Resource resource = fileStorageService.loadFileAsResource(fileName);
         String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
