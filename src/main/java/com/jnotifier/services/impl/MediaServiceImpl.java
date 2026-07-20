@@ -112,20 +112,17 @@ public class MediaServiceImpl implements IMediaService {
     }
 
     @Override
-    public ResponseEntity<Resource> downloadMedia(String fileName, HttpServletRequest request) throws IOException {
-        // 1. Load the file as a resource
+    public ResponseEntity<Resource> downloadMedia(String fileName, Long mediaId, HttpServletRequest request) throws IOException {
+        Media media = mediaRepository.findById(mediaId).orElseThrow(()-> new GenericException(ApiResponse.error("MEDIA_ERR", "Invalid media")));
+
+        if (!media.getIsPublic() || !media.getIsDeleted()) throw new GenericException(ApiResponse.error("MEDIA_TYPE_ERR", "Media has been deleted"));
+
         Resource resource = fileStorageService.loadFileAsResource(fileName);
-
-        // 2. Determine the file's content type (e.g., image/jpeg, application/pdf)
         String contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-
-        // Fallback to the default type if the type could not be determined
         if (contentType == null) {
             contentType = "application/octet-stream";
         }
 
-        // 3. Return the file — include Content-Length so reverse proxies (Nginx) can
-        //    stream without buffering the entire response first.
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .contentLength(resource.contentLength())

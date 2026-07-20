@@ -6,10 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -20,8 +17,8 @@ public class DownloadController {
     private MediaServiceImpl mediaService;
 
     @GetMapping("/{filename:.+}")
-    public ResponseEntity<Resource> download(@PathVariable String filename, HttpServletRequest request)
+    public ResponseEntity<Resource> download(@PathVariable String filename, @RequestParam Long mediaId, HttpServletRequest request)
             throws IOException{
-        return mediaService.downloadMedia(filename, request);
+        return mediaService.downloadMedia(filename, mediaId, request);
     }
 }

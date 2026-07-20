@@ -20,5 +20,5 @@ public interface IMediaService {
 
     public ServiceReply deleteMedia(Long mediaId);
 
-    public ResponseEntity<Resource> downloadMedia(String fileName, HttpServletRequest request) throws IOException;
+    public ResponseEntity<Resource> downloadMedia(String fileName, Long mediaId, HttpServletRequest request) throws IOException;
 }
