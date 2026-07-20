@@ -49,7 +49,7 @@ public class ViewsServiceImpl implements IViewsService {
     public ServiceReply getPageViews(String visitedPage) {
         Map<String, Object> map = new HashMap<>();
         List<PageViewsPojo> pageViews = viewsRepository.findPageViews(visitedPage);
-        Long totalViews = pageViews.stream().map(PageViewsPojo::getPageViews).reduce(0L,Long::sum);
+        Long totalViews = pageViews.stream().map(PageViewsPojo::getPageViews).reduce(0L, Long::sum);
 
         map.put("message", "Page views fetched successfully.");
         map.put("views", totalViews);
@@ -63,7 +63,24 @@ public class ViewsServiceImpl implements IViewsService {
         Map<String, Object> map = new HashMap<>();
 
         map.put("message", "Daily active views fetched successfully.");
-        map.put("views", dau);
+
+        if (dau == null) {
+            map.put("views", 0);
+        } else {
+            map.put("views", dau.getDau());
+        }
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getTotalViews() {
+        Map<String, Object> map = new HashMap<>();
+        List<DailyActiveUsersPojo> viewDetails = viewsRepository.findTotalViews();
+        Long totalViews = viewDetails.stream().map(DailyActiveUsersPojo::getDau).reduce(0L, Long::sum);
+
+        map.put("message", "Total views fetched successfully.");
+        map.put("views", totalViews);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }

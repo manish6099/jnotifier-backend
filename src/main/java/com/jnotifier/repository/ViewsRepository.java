@@ -21,4 +21,7 @@ public interface ViewsRepository extends JpaRepository<Views, Integer> {
 
     @Query(value = ViewsQueries.GET_DAILY_ACTIVE_VIEWS)
     DailyActiveUsersPojo findDailyActiveViews(@Param("visitedDate") String visitedDate);
+
+    @Query(value = ViewsQueries.GET_TOTAL_VIEWS)
+    List<DailyActiveUsersPojo> findTotalViews();
 }

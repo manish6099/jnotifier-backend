@@ -23,4 +23,13 @@ public class ViewsQueries {
             "WHERE v.visitedDate = :visitedDate " +
             "  AND v.visitedDate IS NOT NULL " +
             "GROUP BY v.ipAddress, v.visitedDate";
+
+    public static final String GET_TOTAL_VIEWS = "SELECT new com.jnotifier.payload.pojo.DailyActiveUsersPojo(" +
+            "   v.ipAddress, " +
+            "   v.visitedDate, " +
+            "   COUNT(v.ipAddress) " +
+            ") " +
+            "FROM Views v " +
+            "WHERE v.visitedDate IS NOT NULL " +
+            "GROUP BY v.ipAddress, v.visitedDate";
 }

@@ -19,9 +19,15 @@ public class DashboardController {
     @Autowired
     private ViewsServiceImpl viewsService;
 
-    @GetMapping("/dau")
-    public ResponseEntity<ApiResponse<?>> getDau(@RequestParam String visitedDate) {
+    @GetMapping("/today-views")
+    public ResponseEntity<ApiResponse<?>> getTodayViews(@RequestParam String visitedDate) {
         ServiceReply reply = viewsService.getDailyActiveViews(visitedDate);
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/total-views")
+    public ResponseEntity<ApiResponse<?>> getTotalViews() {
+        ServiceReply reply = viewsService.getTotalViews();
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 }
