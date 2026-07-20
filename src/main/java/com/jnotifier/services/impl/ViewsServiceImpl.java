@@ -2,6 +2,7 @@ package com.jnotifier.services.impl;
 
 import com.jnotifier.entity.Views;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.payload.pojo.DailyActiveUsersPojo;
 import com.jnotifier.payload.pojo.PageViewsPojo;
 import com.jnotifier.payload.response.ApiResponse;
 import com.jnotifier.payload.response.ServiceReply;
@@ -52,6 +53,17 @@ public class ViewsServiceImpl implements IViewsService {
 
         map.put("message", "Page views fetched successfully.");
         map.put("views", totalViews);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getDailyActiveViews(String visitedDate) {
+        DailyActiveUsersPojo dau = viewsRepository.findDailyActiveViews(visitedDate);
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("message", "Daily active views fetched successfully.");
+        map.put("views", dau);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
