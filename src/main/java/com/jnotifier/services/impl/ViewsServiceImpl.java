@@ -59,16 +59,12 @@ public class ViewsServiceImpl implements IViewsService {
 
     @Override
     public ServiceReply getDailyActiveViews(String visitedDate) {
-        DailyActiveUsersPojo dau = viewsRepository.findDailyActiveViews(visitedDate);
+        List<DailyActiveUsersPojo> dau = viewsRepository.findDailyActiveViews(visitedDate);
+        Long totalViews = dau.stream().map(DailyActiveUsersPojo::getDau).reduce(0L, Long::sum);
         Map<String, Object> map = new HashMap<>();
 
         map.put("message", "Daily active views fetched successfully.");
-
-        if (dau == null) {
-            map.put("views", 0);
-        } else {
-            map.put("views", dau.getDau());
-        }
+        map.put("views", totalViews);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
     }
