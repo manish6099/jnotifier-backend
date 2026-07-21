@@ -133,7 +133,6 @@ public class AdminJobController {
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
         boolean isSuperAdmin = authentication.getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().equals("ROLE_SUPERADMIN"));
         String username = authentication.getName();
