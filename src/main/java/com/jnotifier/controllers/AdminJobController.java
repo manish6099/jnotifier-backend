@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.helpers.FileHelper;
 import com.jnotifier.payload.request.ApplicationStatusRequest;
 import com.jnotifier.payload.response.JobApplicationResponse;
 import com.jnotifier.payload.response.ProtectedJobApplicationResponse;
@@ -43,6 +44,9 @@ public class AdminJobController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private FileHelper fileHelper;
+
     // --- Job Application Endpoints ---
 
     @PostMapping("/applications")
@@ -76,6 +80,8 @@ public class AdminJobController {
             throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
         if (advFileSize > 50)
             throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+
+        if (!fileHelper.isValidPdf(advFile)) throw new GenericException(ApiResponse.error("INVALID_FILE_EXTENSION", "Invalid file extension"));
 
         byte[] fileBytes = file.getBytes();
         String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
