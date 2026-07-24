@@ -1,6 +1,7 @@
 package com.jnotifier.payload.response;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class JobApplicationResponse {
     private String title;
@@ -9,12 +10,15 @@ public class JobApplicationResponse {
     private LocalDate applicationEndDate;
     private String shortDescription;
     private String advNo;
-    private long applicationId;
+    private Long applicationId;
+    private String createdBy;
+    private LocalDateTime createdAt;
 
     public JobApplicationResponse() {
     }
 
-    public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo, long applicationId) {
+    public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo,
+                                  Long applicationId) {
         this.title = title;
         this.tags = tags;
         this.applicationStartDate = applicationStartDate;
@@ -22,6 +26,19 @@ public class JobApplicationResponse {
         this.shortDescription = shortDescription;
         this.advNo = advNo;
         this.applicationId = applicationId;
+    }
+
+    public JobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo,
+                                  Long applicationId, String createdBy, LocalDateTime createdAt) {
+        this.title = title;
+        this.tags = tags;
+        this.applicationStartDate = applicationStartDate;
+        this.applicationEndDate = applicationEndDate;
+        this.shortDescription = shortDescription;
+        this.advNo = advNo;
+        this.applicationId = applicationId;
+        this.createdBy = createdBy;
+        this.createdAt = createdAt;
     }
 
     public String getTitle() {
@@ -78,5 +95,21 @@ public class JobApplicationResponse {
 
     public void setApplicationId(long applicationId) {
         this.applicationId = applicationId;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

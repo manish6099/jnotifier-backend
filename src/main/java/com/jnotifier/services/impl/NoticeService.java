@@ -2,6 +2,7 @@ package com.jnotifier.services.impl;
 
 import com.jnotifier.entity.Notice;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.payload.pojo.NoticeListingsPojo;
 import com.jnotifier.payload.request.AddNewNoticeRequest;
 import com.jnotifier.payload.request.UpdateNoticeRequest;
 import com.jnotifier.payload.response.ApiResponse;
@@ -176,6 +177,28 @@ public class NoticeService implements INoticeService {
         Page<Notice> notices = noticeRepository.findByIsActivePublic(false, pageable);
 
         map.put("message", "All archived notices are fetched successfully");
+        map.put("list", notices);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getAllActiveNoticeListingsPublic(Pageable pageable) {
+        Map<String, Object> map = new HashMap<>();
+        Page<NoticeListingsPojo> notices = noticeRepository.findAllNoticeListingsByCreatedByPublic(true, pageable);
+
+        map.put("message", "All active notices are fetched successfully");
+        map.put("list", notices);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getAllArchiveNoticeListingsPublic(Pageable pageable){
+        Map<String, Object> map = new HashMap<>();
+        Page<NoticeListingsPojo> notices = noticeRepository.findAllNoticeListingsByCreatedByPublic(false, pageable);
+
+        map.put("message", "All archive notices are fetched successfully");
         map.put("list", notices);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);

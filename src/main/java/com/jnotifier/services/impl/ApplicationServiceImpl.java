@@ -2,6 +2,7 @@ package com.jnotifier.services.impl;
 
 import java.util.List;
 
+import com.jnotifier.payload.pojo.JobsListingsPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -118,5 +119,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Page<Application> findAllArchivedPublicApplications(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return applicationRepository.findAllArchivedPublicApplications(pageable);
+    }
+
+    @Override
+    public Page<JobsListingsPojo> findAllActiveJobListingsDetails(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return applicationRepository.findAllJobListingsDetails(true, pageable);
+    }
+
+    @Override
+    public Page<JobsListingsPojo> findAllArchiveJobListingsDetails(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return applicationRepository.findAllJobListingsDetails(false, pageable);
     }
 }

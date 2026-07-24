@@ -13,6 +13,10 @@ import jakarta.validation.constraints.Size;
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = "username"),
                 @UniqueConstraint(columnNames = "email")
+        },
+        indexes = {
+                @Index(name = "idx_users_search_terms", columnList = "email, username"),
+                @Index(name = "idx_users_flags", columnList = "is_suspended, is_deleted")
         })
 public class User extends BaseEntity {
 
@@ -45,9 +49,14 @@ public class User extends BaseEntity {
     @Column(name = "gender", columnDefinition = "VARCHAR(1)")
     private String gender;
 
-    @NotBlank
     @Column(name = "category", columnDefinition = "VARCHAR(3)")
     private String category;
+
+    @Column(name = "company_name", columnDefinition = "VARCHAR(64)")
+    private String companyName;
+
+    @Column(name = "address", columnDefinition = "VARCHAR(128)")
+    private String address;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
@@ -57,7 +66,13 @@ public class User extends BaseEntity {
     private Boolean isPwd = false;
 
     @Column(name = "is_email_verified")
-    private Boolean isEmailVerified =  false;
+    private Boolean isEmailVerified = false;
+
+    @Column(name = "is_suspended")
+    private Boolean isSuspended = false;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
 
     public User() {
     }
@@ -72,6 +87,24 @@ public class User extends BaseEntity {
         this.category = category;
         this.isPwd = isPwd;
         this.isEmailVerified = isEmailVerified;
+        this.isSuspended = false;
+        this.isDeleted = false;
+    }
+
+    public User(String fullname, String email, String password, LocalDate dob, String gender, String mobile, Boolean isEmailVerified,
+                String companyName, String address) {
+        this.fullname = fullname;
+        this.email = email;
+        this.password = password;
+        this.dob = dob;
+        this.isPwd = null;
+        this.gender = gender;
+        this.mobile = mobile;
+        this.isEmailVerified = isEmailVerified;
+        this.companyName = companyName;
+        this.address = address;
+        this.isSuspended = false;
+        this.isDeleted = false;
     }
 
     public String getUsername() {
@@ -160,5 +193,37 @@ public class User extends BaseEntity {
 
     public void setIsEmailVerified(Boolean isEmailVerified) {
         this.isEmailVerified = isEmailVerified;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Boolean getIsSuspended() {
+        return isSuspended;
+    }
+
+    public void setIsSuspended(Boolean isSuspended) {
+        this.isSuspended = isSuspended;
+    }
+
+    public Boolean getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

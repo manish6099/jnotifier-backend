@@ -54,15 +54,17 @@ public class PublicJobController {
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<JobApplicationResponse> jobsPage = applicationService.findActiveApplications(page, size)
+        Page<JobApplicationResponse> jobsPage = applicationService.findAllActiveJobListingsDetails(page, size)
                 .map(app -> new JobApplicationResponse(
                         app.getTitle(),
                         app.getTags(),
                         app.getApplicationStartDate(),
                         app.getApplicationEndDate(),
                         app.getShortDescription(),
-                        app.getAdvertisementNo(),
-                        app.getId()
+                        app.getAdvNo(),
+                        app.getApplicationId(),
+                        app.getCreatedBy(),
+                        app.getCreatedAt()
                 ));
 
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
@@ -72,15 +74,17 @@ public class PublicJobController {
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getArchivedJobList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<JobApplicationResponse> jobsPage = applicationService.findAllArchivedPublicApplications(page, size)
+        Page<JobApplicationResponse> jobsPage = applicationService.findAllArchiveJobListingsDetails(page, size)
                 .map(app -> new JobApplicationResponse(
                         app.getTitle(),
                         app.getTags(),
                         app.getApplicationStartDate(),
                         app.getApplicationEndDate(),
                         app.getShortDescription(),
-                        app.getAdvertisementNo(),
-                        app.getId()
+                        app.getAdvNo(),
+                        app.getApplicationId(),
+                        app.getCreatedBy(),
+                        app.getCreatedAt()
                 ));
 
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
@@ -145,7 +149,7 @@ public class PublicJobController {
     public ResponseEntity<ApiResponse<?>> getAllActiveNotices(@RequestParam(defaultValue = "0") int page,
                                                               @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        ServiceReply reply = noticeService.getAllActivePublicNotices(pageable);
+        ServiceReply reply = noticeService.getAllActiveNoticeListingsPublic(pageable);
 
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
@@ -154,7 +158,7 @@ public class PublicJobController {
     public ResponseEntity<ApiResponse<?>> getAllArchivedNotices(@RequestParam(defaultValue = "0") int page,
                                                                 @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        ServiceReply reply = noticeService.getAllArchivedPublicNotices(pageable);
+        ServiceReply reply = noticeService.getAllArchiveNoticeListingsPublic(pageable);
 
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
