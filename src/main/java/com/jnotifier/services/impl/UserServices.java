@@ -7,14 +7,19 @@ import com.jnotifier.entity.User;
 import com.jnotifier.exception.GenericException;
 import com.jnotifier.helpers.CaptchaHelper;
 import com.jnotifier.helpers.EmailHelper;
+import com.jnotifier.helpers.OTPHelper;
 import com.jnotifier.payload.request.SignupRequest;
 import com.jnotifier.payload.response.ApiResponse;
+import com.jnotifier.payload.response.PaginatedResponse;
 import com.jnotifier.payload.response.ServiceReply;
+import com.jnotifier.payload.response.UserDetailsResponse;
 import com.jnotifier.repository.RoleRepository;
 import com.jnotifier.repository.UserRepository;
 import com.jnotifier.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -39,13 +44,13 @@ public class UserServices implements IUserService {
     private EmailHelper emailHelper;
     @Autowired
     private CaptchaHelper captchaHelper;
+    @Autowired
+    private OTPHelper otpHelper;
 
     @Value("${jnotifier.app.default-otp-enabled}")
     private boolean defaultOtpEnabled;
     @Value("${notification.support.email}")
     private String notificationSupportEmail;
-
-    private static final Map<String, String> otpStore = new ConcurrentHashMap<>();
 
     private Map<String, String> getOtpPayload(User user, String otp) {
         Map<String, String> payload = new HashMap<>();
@@ -122,7 +127,7 @@ public class UserServices implements IUserService {
         if (!defaultOtpEnabled) {
             otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
-        otpStore.put(generatedUsername, otpCode);
+        otpHelper.generateOTP(generatedUsername, otpCode);
 
         if (!defaultOtpEnabled) {
             Map<String, String> content = getOtpPayload(user, otpCode);
@@ -134,5 +139,20 @@ public class UserServices implements IUserService {
         replyContent.put("message", "Admin created successfully!");
         replyContent.put("username", user.getUsername());
         return new ServiceReply().build(HttpStatusCode.valueOf(201), replyContent);
+    }
+
+    @Override
+    public ServiceReply getAllUsersDetailsExceptSA(Pageable pageable) throws GenericException {
+        Page<UserDetailsResponse> users = userRepository.findAllUserDetailsExceptSA(pageable).map(user ->
+                new UserDetailsResponse(user.getId(), user.getFullname(), user.getUsername(), user.getEmail(), user.getMobile(), user.getGender(),
+                        user.getAddress(), user.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), user.getCategory(),
+                        user.getIsPwd(), user.getCompanyName(), user.getRole().getName().name(), user.getIsSuspended(),
+                        user.getIsDeleted()));
+        Map<String, Object> reply = new HashMap<>();
+
+        reply.put("message", "User details fetched successfully!");
+        reply.put("list", new PaginatedResponse<>(users));
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), reply);
     }
 }

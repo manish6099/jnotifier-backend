@@ -32,12 +32,12 @@ public class SignupRequest {
     private Boolean isPwd;
 
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z0-9\\\\s\\\\-_().,]{4,64}$", message = "Invalid company name")
+    @Pattern(regexp = "^[A-Za-z0-9\\s\\-_().,]{4,64}$", message = "Invalid company name")
     @Size(min = 4, max = 64, message = "Company name is too long")
     private String companyName;
 
     @NotBlank
-    @Pattern(regexp = "^[A-Za-z0-9\\\\s\\\\-_().,#]{4,128}", message = "Invalid address")
+    @Pattern(regexp = "^[A-Za-z0-9\\s\\-_().,#]{4,128}$", message = "Invalid address")
     @Size(min = 4, max = 128, message = "Address is too long")
     private String address;
 

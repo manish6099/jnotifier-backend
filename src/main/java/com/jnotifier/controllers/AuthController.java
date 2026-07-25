@@ -17,6 +17,7 @@ import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.app.JNotifierEnums;
 import com.jnotifier.helpers.CaptchaHelper;
 import com.jnotifier.helpers.EmailHelper;
+import com.jnotifier.helpers.OTPHelper;
 import com.jnotifier.payload.pojo.SimpleUserPojo;
 import com.jnotifier.payload.request.*;
 import com.jnotifier.payload.response.ServiceReply;
@@ -61,14 +62,8 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    // Stores username -> otpCode
-    private static final Map<String, String> otpStore = new ConcurrentHashMap<>();
-
     @Value("${jnotifier.app.default-otp-enabled}")
     private boolean defaultOtpEnabled;
-
-    @Value("${jnotifier.app.jwtRefreshExpirationMs}")
-    private Long refreshTokenDurationMs;
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -102,6 +97,9 @@ public class AuthController {
 
     @Autowired
     private EmailHelper emailHelper;
+
+    @Autowired
+    private OTPHelper otpHelper;
 
     private Map<String, String> getOtpPayload(User user, String otp) {
         Map<String, String> payload = new HashMap<>();
@@ -156,10 +154,18 @@ public class AuthController {
             otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
 
-        otpStore.put(loginRequest.getUsername(), otpCode);
+        otpHelper.generateOTP(loginRequest.getUsername(), otpCode);
 
         User user = userRepository.findByUsernameOrEmail(loginRequest.getUsername(), loginRequest.getUsername())
                 .orElseThrow(() -> new GenericException(ApiResponse.error("USER_NOT_FOUND", "Invalid credentials.")));
+
+        boolean isAccountSuspended = Optional.ofNullable(user.getIsSuspended()).orElse(false);
+        boolean isAccountDeleted = Optional.ofNullable(user.getIsDeleted()).orElse(false);
+
+        if (isAccountSuspended)
+            throw new GenericException(ApiResponse.error("ACCOUNT_ERR", "Can't login, account is in suspended mode."));
+        if (isAccountDeleted)
+            throw new GenericException(ApiResponse.error("ACCOUNT_ERR", "Can't login, account is deleted"));
 
         Map<String, String> data = new HashMap<>();
         data.put("username", loginRequest.getUsername());
@@ -188,7 +194,7 @@ public class AuthController {
             otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
 
-        otpStore.put(resendOTPRequest.getUsername(), otpCode);
+        otpHelper.generateOTP(resendOTPRequest.getUsername(), otpCode);
         data.put("message", "OTP sent successfully");
 
         if (!defaultOtpEnabled) {
@@ -211,7 +217,7 @@ public class AuthController {
         if (!defaultOtpEnabled) {
             otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
-        otpStore.put(emailVerifyRequest.getEmail(), otpCode);
+        otpHelper.generateOTP(emailVerifyRequest.getEmail(), otpCode);
 
         if (!defaultOtpEnabled) {
             Map<String, String> content = getOtpPayload(user, otpCode);
@@ -239,16 +245,15 @@ public class AuthController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<ApiResponse<Object>> verifyOtp(@Valid @RequestBody OtpRequest otpRequest) {
-        String correctOtp = otpStore.get(otpRequest.getUsername());
         String verificationType = otpRequest.getVerificationType();
         ServiceReply serviceReply;
 
-        if (correctOtp == null || !correctOtp.equals(otpRequest.getOtpCode())) {
+        if (!otpHelper.validateOTP(otpRequest.getUsername(), otpRequest.getOtpCode())) {
             return ResponseEntity
                     .badRequest()
                     .body(ApiResponse.error("INVALID_OTP", "OTP is incorrect or expired."));
         }
-        otpStore.remove(otpRequest.getUsername());
+        otpHelper.removeOTP(otpRequest.getUsername());
 
         JNotifierEnums verificationTypeEnum = JNotifierEnums.fromString(verificationType);
 
@@ -355,7 +360,7 @@ public class AuthController {
         if (!defaultOtpEnabled) {
             otpCode = String.format("%06d", new Random().nextInt(100000, 999999));
         }
-        otpStore.put(generatedUsername, otpCode);
+        otpHelper.generateOTP(generatedUsername, otpCode);
 
         //Creating content object for welcome notification
         welcomeNotificationContent.put("userName", user.getUsername());

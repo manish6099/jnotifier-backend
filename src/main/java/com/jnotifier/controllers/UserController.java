@@ -13,6 +13,9 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -71,5 +74,15 @@ public class UserController {
     public ResponseEntity<ApiResponse<Object>> registerAdminUsers(@Valid @RequestBody SignupRequest signupRequest) throws JsonProcessingException, GenericException {
         ServiceReply serviceReply = services.registerAdminUsers(signupRequest);
         return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(serviceReply.getReply()));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<?>> getAllUserDetailsExceptSA(@RequestParam(defaultValue = "0") int page,
+                                                                    @RequestParam(defaultValue = "10") int size)
+            throws GenericException {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        ServiceReply reply = services.getAllUsersDetailsExceptSA(pageable);
+
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 }
