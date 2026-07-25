@@ -9,6 +9,7 @@ import com.jnotifier.payload.response.ServiceReply;
 import com.jnotifier.repository.ViewsRepository;
 import com.jnotifier.services.IViewsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ public class ViewsServiceImpl implements IViewsService {
     }
 
     @Override
+    @Cacheable(value = "calcNGet", key = "#visitedPage")
     public ServiceReply getPageViews(String visitedPage) {
         Map<String, Object> map = new HashMap<>();
         List<PageViewsPojo> pageViews = viewsRepository.findPageViews(visitedPage);

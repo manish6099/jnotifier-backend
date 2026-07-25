@@ -2,12 +2,13 @@ package com.jnotifier.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "notices")
+@Table(name = "notices", indexes = {@Index(name = "idx_notices_flags", columnList = "is_active, is_deleted")})
 public class Notice extends BaseEntity {
     @NotNull(message = "Notice title is mandatory")
     @NotBlank(message = "Notice title cannot be blank.")

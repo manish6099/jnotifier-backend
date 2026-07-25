@@ -2,6 +2,7 @@ package com.jnotifier.repository;
 
 import com.jnotifier.entity.Notice;
 import com.jnotifier.helpers.query.NoticeQueries;
+import com.jnotifier.payload.pojo.NoticeListingsPojo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     @Query(NoticeQueries.GET_ALL_USER_NOTICES)
     Page<Notice> findAllUserNotices(@Param("createdBy") String createdBy, Pageable pageable);
+
+    @Query(NoticeQueries.GET_NOTICE_LISTINGS_DETAILS_PUBLIC)
+    Page<NoticeListingsPojo> findAllNoticeListingsByCreatedByPublic(@Param("isActive") Boolean isActive, Pageable pageable);
 }

@@ -23,15 +23,23 @@ public class SignupRequest {
     @NotNull
     private LocalDate dob;
 
-    @NotBlank
     @Pattern(regexp = "^(M|F|T)$", message = "Gender must be M, F, or T")
     private String gender;
 
-    @NotBlank
     @Pattern(regexp = "^(GEN|EWS|OBC|SC|ST)$", message = "Category must be gen, ews, obc, sc or st.")
     private String category;
 
     private Boolean isPwd;
+
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z0-9\\\\s\\\\-_().,]{4,64}$", message = "Invalid company name")
+    @Size(min = 4, max = 64, message = "Company name is too long")
+    private String companyName;
+
+    @NotBlank
+    @Pattern(regexp = "^[A-Za-z0-9\\\\s\\\\-_().,#]{4,128}", message = "Invalid address")
+    @Size(min = 4, max = 128, message = "Address is too long")
+    private String address;
 
     private String role;
 
@@ -127,5 +135,21 @@ public class SignupRequest {
 
     public void setIsPwd(Boolean isPwd) {
         this.isPwd = isPwd;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

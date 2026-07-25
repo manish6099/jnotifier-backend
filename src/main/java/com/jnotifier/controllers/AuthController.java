@@ -284,6 +284,10 @@ public class AuthController {
         String captchaId = signUpRequest.getCaptchaId();
         String captcha = signUpRequest.getCaptcha();
 
+        if (signUpRequest.getIsPwd() == null || signUpRequest.getCategory() == null || signUpRequest.getCategory().isEmpty()) {
+            throw new GenericException(ApiResponse.error("INVALID_FORM_DATA", "Please fill all the required fields."));
+        }
+
         if (!captchaHelper.validateCaptcha(captchaId, captcha)) {
             return ResponseEntity
                     .badRequest()

@@ -80,26 +80,21 @@ public class UserServices implements IUserService {
             requestedRole = "user";
         }
 
-        if (requestedRole.equalsIgnoreCase("user"))
+        if (!requestedRole.equalsIgnoreCase("admin"))
             throw new GenericException(ApiResponse.error("INVALID_ROLE", "Invalid Role."));
 
         Role userRole;
 
         //Deciding and assigning the appropriate role to the signup dto.
-        if (requestedRole.equalsIgnoreCase("admin")) {
-            Authentication callerAuth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication callerAuth = SecurityContextHolder.getContext().getAuthentication();
 
-            if (!callerAuth.isAuthenticated() ||
-                    callerAuth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"))) {
-                throw new GenericException(ApiResponse.error("FORBIDDEN", "Error: Only SUPERADMIN accounts can register new ADMIN users."));
-            }
-
-            userRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: ADMIN role not initialized in database."));
-        } else {
-            userRole = roleRepository.findByName(ERole.ROLE_SUPERADMIN)
-                    .orElseThrow(() -> new RuntimeException("Error: SUPERADMIN role not initialized in database."));
+        if (!callerAuth.isAuthenticated() ||
+                callerAuth.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"))) {
+            throw new GenericException(ApiResponse.error("FORBIDDEN", "Error: Only SUPERADMIN accounts can register new ADMIN users."));
         }
+
+        userRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                .orElseThrow(() -> new RuntimeException("Error: ADMIN role not initialized in database."));
 
         // Generate unique system-level username containing timestamp & name alphabets
         String cleanName = signUpRequest.getFullName().toLowerCase().replaceAll("[^a-zA-Z]", "");
@@ -116,7 +111,7 @@ public class UserServices implements IUserService {
                 encoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getDob(),
                 signUpRequest.getGender(),
-                signUpRequest.getMobile(), signUpRequest.getCategory(), signUpRequest.getIsPwd(), false);
+                signUpRequest.getMobile(), false, signUpRequest.getCompanyName(), signUpRequest.getAddress());
 
         user.setUsername(generatedUsername);
         user.setRole(userRole);

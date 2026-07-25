@@ -2,6 +2,7 @@ package com.jnotifier.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,11 +11,11 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "applications")
+@Table(name = "applications", indexes = {@Index(name = "idx_application_status", columnList = "status")})
 public class Application extends BaseEntity {
 
     @NotBlank
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", columnDefinition = "VARCHAR(32)", nullable = false)
     private String title;
 
     @Column(name = "tags")

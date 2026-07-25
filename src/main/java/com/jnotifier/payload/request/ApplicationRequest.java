@@ -1,32 +1,35 @@
 package com.jnotifier.payload.request;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 public class ApplicationRequest {
-    @NotBlank
+    @NotNull(message = "Job application title is required")
+    @Size(max = 32,message = "Your job application title is too long")
     private String title;
 
+    @NotNull(message = "Job application tags are required")
     private String tags;
 
     @NotNull
+    @NotNull(message = "Application start date is required")
     private LocalDate applicationStartDate;
 
-    @NotNull
+    @NotNull(message = "Application end date is required")
     private LocalDate applicationEndDate;
 
     @Size(max = 100)
     private String advNo;
 
+    @NotNull(message = "Job application's short description is required.")
     @Size(max = 700)
     private String shortDescription;
 
     private String viewPageDescription;
 
+    @NotNull(message = "Apply link is required")
     @Size(max = 100)
     private String applyLink;
 

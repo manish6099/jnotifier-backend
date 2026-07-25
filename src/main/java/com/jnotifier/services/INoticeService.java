@@ -34,4 +34,8 @@ public interface INoticeService {
     public ServiceReply getAllArchivedNotices(String createdBy, Pageable pageable);
 
     public ServiceReply getAllUserNotices(String createdBy, Pageable pageable);
+
+    public ServiceReply getAllActiveNoticeListingsPublic(Pageable pageable);
+
+    public ServiceReply getAllArchiveNoticeListingsPublic(Pageable pageable);
 }

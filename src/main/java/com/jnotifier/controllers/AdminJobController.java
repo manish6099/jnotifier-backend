@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.jnotifier.app.JNotifierConstants;
 import com.jnotifier.exception.GenericException;
+import com.jnotifier.helpers.FileHelper;
 import com.jnotifier.payload.request.ApplicationStatusRequest;
 import com.jnotifier.payload.response.JobApplicationResponse;
 import com.jnotifier.payload.response.ProtectedJobApplicationResponse;
@@ -43,45 +44,58 @@ public class AdminJobController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private FileHelper fileHelper;
+
     // --- Job Application Endpoints ---
 
     @PostMapping("/applications")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Application>> createApplication(@Valid @ModelAttribute ApplicationRequest request,
-                                                                      @RequestParam("file") MultipartFile file,
-                                                                      @RequestParam("advFile") MultipartFile advFile) throws IOException {
-        if (file.isEmpty()) throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload a file"));
-        if (advFile.isEmpty()) throw new GenericException(ApiResponse.error("FILE_EMPTY", "Please upload a file"));
+                                                                      @RequestParam(value = "file", required = false) MultipartFile file,
+                                                                      @RequestParam(value = "advFile", required = false) MultipartFile advFile) throws IOException {
+        //Info: Processing upcoming mark down file.
+        if (file != null && !file.isEmpty()) {
+            String originalFilename = file.getOriginalFilename();
+            String contentType = file.getContentType();
 
-        String originalFilename = file.getOriginalFilename();
-        String contentType = file.getContentType();
+            boolean hasMdExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".md");
+            boolean hasMdMimeType = "text/markdown".equalsIgnoreCase(contentType);
+            long fileSize = file.getSize() / (1024 * 1024);
 
-        String advFilename = advFile.getOriginalFilename();
-        String advContentType = advFile.getContentType();
+            if (!hasMdExtension && !hasMdMimeType)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a markdown file."));
 
-        boolean hasMdExtension = originalFilename != null && originalFilename.toLowerCase().endsWith(".md");
-        boolean hasMdMimeType = "text/markdown".equalsIgnoreCase(contentType);
-        boolean hasPdfExtension = advFilename != null && advFilename.toLowerCase().endsWith(".pdf");
-        boolean hasPdfMimeType = "application/pdf".equalsIgnoreCase(advContentType);
+            if (fileSize > 5)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
 
-        long fileSize = file.getSize() / (1024 * 1024);
-        long advFileSize = advFile.getSize() / (1024 * 1024);
+            byte[] fileBytes = file.getBytes();
+            String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
 
-        if (!hasMdExtension && !hasMdMimeType)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a markdown file."));
-        if (!hasPdfExtension && !hasPdfMimeType)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a pdf file."));
+            request.setViewPageDescription(markdownContent);
+        }
 
-        if (fileSize > 5)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
-        if (advFileSize > 50)
-            throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+        //Info: Processing upcoming advertisement PDF file.
+        if (advFile != null && !advFile.isEmpty()) {
+            String advFilename = advFile.getOriginalFilename();
+            String advContentType = advFile.getContentType();
 
-        byte[] fileBytes = file.getBytes();
-        String markdownContent = new String(fileBytes, StandardCharsets.UTF_8);
 
-        request.setViewPageDescription(markdownContent);
-        request.setAdvFileName("/uploads/" + fileStorageService.saveFile(advFile));
+            boolean hasPdfExtension = advFilename != null && advFilename.toLowerCase().endsWith(".pdf");
+            boolean hasPdfMimeType = "application/pdf".equalsIgnoreCase(advContentType);
+            long advFileSize = advFile.getSize() / (1024 * 1024);
+
+            if (!hasPdfExtension && !hasPdfMimeType)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_EXT", "Please upload a pdf file."));
+
+            if (advFileSize > 50)
+                throw new GenericException(ApiResponse.error("INVALID_FILE_SIZE", "Your file size is too large"));
+
+            if (!fileHelper.isValidPdf(advFile))
+                throw new GenericException(ApiResponse.error("INVALID_FILE_EXTENSION", "Invalid file extension"));
+
+            request.setAdvFileName("/uploads/" + fileStorageService.saveFile(advFile));
+        }
 
         Application saved = applicationService.save(request);
         return ResponseEntity.ok(ApiResponse.success(saved));
@@ -133,7 +147,6 @@ public class AdminJobController {
             Authentication authentication,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-
         boolean isSuperAdmin = authentication.getAuthorities().stream()
                 .anyMatch(r -> r.getAuthority().equals("ROLE_SUPERADMIN"));
         String username = authentication.getName();
