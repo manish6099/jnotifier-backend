@@ -17,11 +17,13 @@ public class CorsConfig {
     public FilterRegistrationBean<CorsFilter> customCorsFilter() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOriginPatterns(List.of("http://localhost:4242", "http://localhost:4243",
+                "https://admin.jnotifier.devapps.codingworks.in", "https://jnotifier.devapps.codingworks.in"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // CRITICAL FIX: Allow all headers (Content-Type, Authorization, etc.)
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("Retry-After"));
 
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

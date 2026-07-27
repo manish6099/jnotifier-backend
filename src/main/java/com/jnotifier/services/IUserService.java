@@ -9,4 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface IUserService {
     public ServiceReply registerAdminUsers(SignupRequest signupRequest) throws JsonProcessingException, GenericException;
     public ServiceReply getAllUsersDetailsExceptSA(Pageable pageable) throws GenericException;
+    public ServiceReply markUserAsDeleted(Long id) throws GenericException;
+    public ServiceReply markUserAsSuspended(Long id) throws GenericException;
 }

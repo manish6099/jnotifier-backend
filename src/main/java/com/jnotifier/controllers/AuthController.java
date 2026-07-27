@@ -267,18 +267,15 @@ public class AuthController {
                     .header(HttpHeaders.SET_COOKIE, refCookie.toString())
                     .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
                     .body(ApiResponse.success(body));
-
         } else if (verificationTypeEnum == JNotifierEnums.EMAIL_VERIFY) {
             serviceReply = verifyService.verifyEmail(otpRequest.getUsername());
             Object response = serviceReply.getReply();
 
             return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(response));
-
         } else if (verificationTypeEnum == JNotifierEnums.FORGOT_PWD) {
             serviceReply = verifyService.forgotPassword(otpRequest.getUsername());
             java.lang.Object reply = serviceReply.getReply();
             return ResponseEntity.status(serviceReply.getHttpStatusCode()).body(ApiResponse.success(reply));
-
         } else {
             return ResponseEntity.badRequest().body(ApiResponse.error("INVALID_VERIFICATION_TYPE", "Invalid verification type."));
         }

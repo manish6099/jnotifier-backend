@@ -30,7 +30,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class UserServices implements IUserService {
@@ -154,5 +153,23 @@ public class UserServices implements IUserService {
         reply.put("list", new PaginatedResponse<>(users));
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), reply);
+    }
+
+    @Override
+    public ServiceReply markUserAsDeleted(Long id) throws GenericException {
+        User user = userRepository.findById(id).orElseThrow(() -> new GenericException(ApiResponse.error("NOT_FOUND", "User not found!")));
+
+        user.setIsDeleted(true);
+        userRepository.save(user);
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
+    }
+
+    @Override
+    public ServiceReply markUserAsSuspended(Long id) throws GenericException {
+        User user = userRepository.findById(id).orElseThrow(() -> new GenericException(ApiResponse.error("NOT_FOUND", "User not found!")));
+
+        user.setIsSuspended(true);
+        userRepository.save(user);
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
     }
 }
