@@ -132,4 +132,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         return applicationRepository.findAllJobListingsDetails(false, pageable);
     }
+
+    @Override
+    public Page<JobsListingsPojo> findAllJobListingsBySeachCriteria(String tags, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        return applicationRepository.findAllJobListingsBySearchCriteria(true, tags, pageable);
+    }
 }

@@ -25,4 +25,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 
     @Query(ApplicationQueries.GET_ALL_JOB_LISTING_DETAILS_PUBLIC)
     Page<JobsListingsPojo> findAllJobListingsDetails(@Param("status") Boolean status, Pageable pageable);
+
+    @Query(ApplicationQueries.GET_ALL_JOB_LISTINGS_BY_SEARCH_CRITERIA)
+    Page<JobsListingsPojo> findAllJobListingsBySearchCriteria(@Param("status") Boolean status, @Param("tags") String tags, Pageable pageable);
 }

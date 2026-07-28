@@ -32,4 +32,6 @@ public interface ApplicationService {
     Page<JobsListingsPojo> findAllActiveJobListingsDetails(int page, int size);
 
     Page<JobsListingsPojo> findAllArchiveJobListingsDetails(int page, int size);
+
+    Page<JobsListingsPojo> findAllJobListingsBySeachCriteria(String tags, int page, int size);
 }

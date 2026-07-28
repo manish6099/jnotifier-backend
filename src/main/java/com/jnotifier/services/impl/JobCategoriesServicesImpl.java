@@ -79,7 +79,7 @@ public class JobCategoriesServicesImpl implements IJobCategoriesServices {
     @Override
     public ServiceReply listAllJobCategoriesPublic() {
         Map<String, Object> map = new HashMap<>();
-        List<PublicJobCategoriesPojo> jobCategories = jobCategoriesRepository.findAll().stream()
+        List<PublicJobCategoriesPojo> jobCategories = jobCategoriesRepository.findAllJobCategoriesPublic().stream()
                 .map(category -> new PublicJobCategoriesPojo(category.getCategoryName()))
                 .toList();
 

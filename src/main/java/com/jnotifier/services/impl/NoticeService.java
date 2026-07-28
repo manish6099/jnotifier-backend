@@ -194,11 +194,22 @@ public class NoticeService implements INoticeService {
     }
 
     @Override
-    public ServiceReply getAllArchiveNoticeListingsPublic(Pageable pageable){
+    public ServiceReply getAllArchiveNoticeListingsPublic(Pageable pageable) {
         Map<String, Object> map = new HashMap<>();
         Page<NoticeListingsPojo> notices = noticeRepository.findAllNoticeListingsByCreatedByPublic(false, pageable);
 
         map.put("message", "All archive notices are fetched successfully");
+        map.put("list", notices);
+
+        return new ServiceReply().build(HttpStatusCode.valueOf(200), map);
+    }
+
+    @Override
+    public ServiceReply getAllNoticeListingsBySearchCriteriaPublic(Boolean isActive, String tags, Pageable pageable) {
+        Map<String, Object> map = new HashMap<>();
+        Page<NoticeListingsPojo> notices = noticeRepository.findAllNoticeListingsBySearchCriteriaPublic(isActive, tags, pageable);
+
+        map.put("message", "All notices are fetched successfully");
         map.put("list", notices);
 
         return new ServiceReply().build(HttpStatusCode.valueOf(200), map);

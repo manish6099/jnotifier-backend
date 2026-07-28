@@ -38,4 +38,6 @@ public interface INoticeService {
     public ServiceReply getAllActiveNoticeListingsPublic(Pageable pageable);
 
     public ServiceReply getAllArchiveNoticeListingsPublic(Pageable pageable);
+
+    public ServiceReply getAllNoticeListingsBySearchCriteriaPublic(Boolean isActive, String tags, Pageable pageable);
 }

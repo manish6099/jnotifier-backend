@@ -70,6 +70,26 @@ public class PublicJobController {
         return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
     }
 
+    @GetMapping("/jobs/search")
+    public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getActiveJobListBySearchCriteria(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size, @RequestParam String search) {
+        Page<JobApplicationResponse> jobsPage = applicationService.findAllJobListingsBySeachCriteria(search, page, size)
+                .map(app -> new JobApplicationResponse(
+                        app.getTitle(),
+                        app.getTags(),
+                        app.getApplicationStartDate(),
+                        app.getApplicationEndDate(),
+                        app.getShortDescription(),
+                        app.getAdvNo(),
+                        app.getApplicationId(),
+                        app.getCreatedBy(),
+                        app.getCreatedAt()
+                ));
+
+        return ResponseEntity.ok(ApiResponse.success(new PaginatedResponse<>(jobsPage)));
+    }
+
     @GetMapping("/jobs/archived")
     public ResponseEntity<ApiResponse<PaginatedResponse<JobApplicationResponse>>> getArchivedJobList(
             @RequestParam(defaultValue = "0") int page,
@@ -150,6 +170,16 @@ public class PublicJobController {
                                                               @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         ServiceReply reply = noticeService.getAllActiveNoticeListingsPublic(pageable);
+
+        return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
+    }
+
+    @GetMapping("/notices/search")
+    public ResponseEntity<ApiResponse<?>> getAllActiveNoticesBySearchCriteria(@RequestParam(defaultValue = "0") int page,
+                                                                              @RequestParam(defaultValue = "10") int size,
+                                                                              @RequestParam String search) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        ServiceReply reply = noticeService.getAllNoticeListingsBySearchCriteriaPublic(true, search, pageable);
 
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }

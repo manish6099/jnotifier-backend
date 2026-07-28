@@ -26,4 +26,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     @Query(NoticeQueries.GET_NOTICE_LISTINGS_DETAILS_PUBLIC)
     Page<NoticeListingsPojo> findAllNoticeListingsByCreatedByPublic(@Param("isActive") Boolean isActive, Pageable pageable);
+
+    @Query(NoticeQueries.GET_NOTICE_LISTINGS_DETAILS_BY_SEARCH_CRITERIA_PUBLIC)
+    Page<NoticeListingsPojo> findAllNoticeListingsBySearchCriteriaPublic(@Param("isActive") Boolean isActive, @Param("tags") String tags, Pageable pageable);
 }
