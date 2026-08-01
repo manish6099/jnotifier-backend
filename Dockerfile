@@ -4,10 +4,12 @@ FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /app
 COPY . .
 
+# Cache-busting argument (forces re-execution of mvnw)
+ARG CACHE_DATE=1
+
 RUN sed -i 's/\r$//' mvnw && chmod +x mvnw && ./mvnw clean install -DskipTests
 
 # Stage 2: Run the application
-# Switch to the smaller JRE image for the final container
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
