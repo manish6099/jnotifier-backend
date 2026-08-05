@@ -86,13 +86,19 @@ public class UserController {
         return ResponseEntity.status(reply.getHttpStatusCode()).body(ApiResponse.success(reply.getReply()));
     }
 
-    @PatchMapping("/mark/suspsended/{userId}")
+    @PatchMapping("/mark/suspended/{userId}")
     public ResponseEntity<ApiResponse<?>> markUserAsSuspended(@PathVariable Long userId) throws GenericException {
         ServiceReply serviceReply = services.markUserAsSuspended(userId);
         return ResponseEntity.status(serviceReply.getHttpStatusCode()).build();
     }
 
-    @PatchMapping("/mark/deleted/{userId}")
+    @PatchMapping("/mark/activate/{userId}")
+    public ResponseEntity<ApiResponse<?>> activateUser(@PathVariable Long userId) throws GenericException {
+        ServiceReply serviceReply = services.activateUser(userId);
+        return ResponseEntity.status(serviceReply.getHttpStatusCode()).build();
+    }
+
+    @DeleteMapping("/mark/deleted/{userId}")
     public ResponseEntity<ApiResponse<?>> markUserAsDeleted(@PathVariable Long userId) throws GenericException {
         ServiceReply serviceReply = services.markUserAsDeleted(userId);
         return ResponseEntity.status(serviceReply.getHttpStatusCode()).build();

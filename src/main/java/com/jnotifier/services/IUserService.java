@@ -11,4 +11,5 @@ public interface IUserService {
     public ServiceReply getAllUsersDetailsExceptSA(Pageable pageable) throws GenericException;
     public ServiceReply markUserAsDeleted(Long id) throws GenericException;
     public ServiceReply markUserAsSuspended(Long id) throws GenericException;
+    public ServiceReply activateUser(Long id) throws GenericException;
 }
