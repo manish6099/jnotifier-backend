@@ -146,7 +146,7 @@ public class UserServices implements IUserService {
                 new UserDetailsResponse(user.getId(), user.getFullname(), user.getUsername(), user.getEmail(), user.getMobile(), user.getGender(),
                         user.getAddress(), user.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), user.getCategory(),
                         user.getIsPwd(), user.getCompanyName(), user.getRole().getName().name(), user.getIsSuspended(),
-                        user.getIsDeleted()));
+                        user.getIsDeleted(), user.getIsEmailVerified()));
         Map<String, Object> reply = new HashMap<>();
 
         reply.put("message", "User details fetched successfully!");
@@ -169,6 +169,15 @@ public class UserServices implements IUserService {
         User user = userRepository.findById(id).orElseThrow(() -> new GenericException(ApiResponse.error("NOT_FOUND", "User not found!")));
 
         user.setIsSuspended(true);
+        userRepository.save(user);
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
+    }
+
+    @Override
+    public ServiceReply activateUser(Long id) throws GenericException {
+        User user = userRepository.findById(id).orElseThrow(() -> new GenericException(ApiResponse.error("NOT_FOUND", "User not found!")));
+
+        user.setIsSuspended(false);
         userRepository.save(user);
         return new ServiceReply().build(HttpStatusCode.valueOf(204));
     }

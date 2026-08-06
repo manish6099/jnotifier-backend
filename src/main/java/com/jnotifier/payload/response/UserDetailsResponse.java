@@ -15,13 +15,14 @@ public class UserDetailsResponse {
     private String roleName;
     private Boolean isSuspended;
     private Boolean isDeleted;
+    private Boolean isEmailVerified;
 
     public UserDetailsResponse() {
     }
 
     public UserDetailsResponse(Long id, String fullname, String username, String email, String mobile, String gender, String address,
                                String dob, String category, Boolean isPwd, String companyName, String roleName,
-                               Boolean isSuspended, Boolean isDeleted) {
+                               Boolean isSuspended, Boolean isDeleted, Boolean isEmailVerified) {
         this.id = id;
         this.fullname = fullname;
         this.username = username;
@@ -36,6 +37,7 @@ public class UserDetailsResponse {
         this.roleName = roleName;
         this.isSuspended = isSuspended;
         this.isDeleted = isDeleted;
+        this.isEmailVerified = isEmailVerified;
     }
 
     public String getFullname() {
@@ -148,5 +150,13 @@ public class UserDetailsResponse {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Boolean getIsEmailVerified() {
+        return isEmailVerified;
+    }
+
+    public void setIsEmailVerified(Boolean isEmailVerified) {
+        this.isEmailVerified = isEmailVerified;
     }
 }

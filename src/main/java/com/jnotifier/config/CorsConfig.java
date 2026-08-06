@@ -18,7 +18,9 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of("http://localhost:4242", "http://localhost:4243",
-                "https://admin.jnotifier.devapps.codingworks.in", "https://jnotifier.devapps.codingworks.in"));
+                "https://admin.jnotifier.devapps.codingworks.in", "https://jnotifier.devapps.codingworks.in",
+                "https://admin.jnotifier.codingworks.in", "https://jobnotifier.codingworks.in","https://www.thejobnotifier.in",
+                "https://thejobnotifier.in"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // CRITICAL FIX: Allow all headers (Content-Type, Authorization, etc.)
