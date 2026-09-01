@@ -12,4 +12,5 @@ public interface IUserService {
     public ServiceReply markUserAsDeleted(Long id) throws GenericException;
     public ServiceReply markUserAsSuspended(Long id) throws GenericException;
     public ServiceReply activateUser(Long id) throws GenericException;
+    public ServiceReply editProfile(String username, com.jnotifier.payload.request.EditProfileRequest request) throws GenericException;
 }

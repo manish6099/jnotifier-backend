@@ -181,4 +181,27 @@ public class UserServices implements IUserService {
         userRepository.save(user);
         return new ServiceReply().build(HttpStatusCode.valueOf(204));
     }
+
+    @Override
+    public ServiceReply editProfile(String username, com.jnotifier.payload.request.EditProfileRequest request) throws GenericException {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new GenericException(ApiResponse.error("NOT_FOUND", "User not found!")));
+        
+        if (request.getFullname() != null) user.setFullname(request.getFullname());
+        if (request.getMobile() != null) user.setMobile(request.getMobile());
+        if (request.getDob() != null) user.setDob(request.getDob());
+        if (request.getGender() != null) user.setGender(request.getGender());
+        if (request.getCategory() != null) user.setCategory(request.getCategory());
+        if (request.getIsPwd() != null) user.setIsPwd(request.getIsPwd());
+        if (request.getCompanyName() != null) user.setCompanyName(request.getCompanyName());
+        if (request.getAddress() != null) user.setAddress(request.getAddress());
+        if (request.getUsername() != null && !request.getUsername().equals(username)) {
+            if (userRepository.existsByUsername(request.getUsername())) {
+                throw new GenericException(ApiResponse.error("BAD_REQUEST", "Username already in use!"));
+            }
+            user.setUsername(request.getUsername());
+        }
+        
+        userRepository.save(user);
+        return new ServiceReply().build(HttpStatusCode.valueOf(204));
+    }
 }

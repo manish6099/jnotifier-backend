@@ -63,6 +63,7 @@ public class UserController {
         reply.put("username", user.getUsername());
         reply.put("category", user.getCategory());
         reply.put("isPwd", Optional.ofNullable(user.getIsPwd()).orElse(false).toString());
+        reply.put("mobile", user.getMobile());
         reply.put("dob", user.getDob().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         reply.put("gender", user.getGender());
 
@@ -102,5 +103,11 @@ public class UserController {
     public ResponseEntity<ApiResponse<?>> markUserAsDeleted(@PathVariable Long userId) throws GenericException {
         ServiceReply serviceReply = services.markUserAsDeleted(userId);
         return ResponseEntity.status(serviceReply.getHttpStatusCode()).build();
+    }
+
+    @PutMapping("/edit-profile")
+    public ResponseEntity<Void> editProfile(Authentication authentication, @Valid @RequestBody com.jnotifier.payload.request.EditProfileRequest request) throws GenericException {
+        ServiceReply reply = services.editProfile(authentication.getName(), request);
+        return ResponseEntity.status(reply.getHttpStatusCode()).build();
     }
 }
