@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.imageio.ImageIO;
 
@@ -33,7 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -327,6 +325,12 @@ public class AuthController {
             userRole = roleRepository.findByName(ERole.ROLE_USER)
                     .orElseThrow(() -> new RuntimeException("Error: USER role not initialized in database."));
         }
+
+        if (userRole.getName().name().equalsIgnoreCase(ERole.ROLE_SUPERADMIN.name()))
+            throw new GenericException(ApiResponse.error("INVALID_ROLE", "Please enter a valid role"));
+
+        if (userRole.getName().name().equalsIgnoreCase(ERole.ROLE_ADMIN.name()) && (signUpRequest.getCompanyName() == null || signUpRequest.getAddress() == null))
+            throw new GenericException(ApiResponse.error("INVALID_USER", "Please fill all the required fields."));
 
         // Generate unique system-level username containing timestamp & name alphabets
         String cleanName = signUpRequest.getFullName().toLowerCase().replaceAll("[^a-zA-Z]", "");

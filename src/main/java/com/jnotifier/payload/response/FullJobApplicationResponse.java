@@ -13,6 +13,7 @@ public class FullJobApplicationResponse {
     private String viewPageDescription;
     private String applyLink;
     private String advFilePath;
+    private Boolean status;
 
     public FullJobApplicationResponse() {
     }
@@ -29,7 +30,7 @@ public class FullJobApplicationResponse {
     }
 
     public FullJobApplicationResponse(String title, String tags, LocalDate applicationStartDate, LocalDate applicationEndDate, String shortDescription, String advNo,
-                                      long applicationId, String viewPageDescription, String applyLink, String advFilePath) {
+                                      long applicationId, String viewPageDescription, String applyLink, String advFilePath, Boolean status) {
         this.title = title;
         this.tags = tags;
         this.applicationStartDate = applicationStartDate;
@@ -40,6 +41,7 @@ public class FullJobApplicationResponse {
         this.viewPageDescription = viewPageDescription;
         this.applyLink = applyLink;
         this.advFilePath = advFilePath;
+        this.status = status;
     }
 
     public String getTitle() {
@@ -120,5 +122,13 @@ public class FullJobApplicationResponse {
 
     public void setAdvFilePath(String advFilePath) {
         this.advFilePath = advFilePath;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
     }
 }

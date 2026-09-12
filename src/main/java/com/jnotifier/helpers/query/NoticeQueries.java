@@ -11,8 +11,8 @@ public class NoticeQueries {
             "    n.tags, \n" +
             "    n.noticeDescription, \n" +
             "    u.fullname, \n" +
-            "    n.createdAt\n" +
-            ")\n" +
+            "    n.createdAt, \n" +
+            "    n.isActive)\n" +
             "FROM \n" +
             "    Notice n \n" +
             "    INNER JOIN User u ON n.createdBy = u.username \n" +

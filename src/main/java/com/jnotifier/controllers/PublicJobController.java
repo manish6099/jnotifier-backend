@@ -129,7 +129,7 @@ public class PublicJobController {
         FullJobApplicationResponse response = new FullJobApplicationResponse(application.getTitle(), application.getTags(),
                 application.getApplicationStartDate(), application.getApplicationEndDate(), application.getShortDescription(),
                 application.getAdvertisementNo(), applicationId, application.getViewPageDescription(), application.getApplyLink(),
-                application.getAdvFileName());
+                application.getAdvFileName(),application.getStatus());
 
         return ResponseEntity.ok(ApiResponse.success(response));
     }

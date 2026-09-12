@@ -9,17 +9,19 @@ public class NoticeListingsPojo {
     private String noticeDescription;
     private String createdBy;
     private LocalDateTime createdAt;
+    private Boolean isActive;
 
     public NoticeListingsPojo() {
     }
 
-    public NoticeListingsPojo(Long id, String title, String tags, String noticeDescription, String createdBy, LocalDateTime createdAt) {
+    public NoticeListingsPojo(Long id, String title, String tags, String noticeDescription, String createdBy, LocalDateTime createdAt, Boolean isActive) {
         this.id = id;
         this.title = title;
         this.tags = tags;
         this.noticeDescription = noticeDescription;
         this.createdBy = createdBy;
         this.createdAt = createdAt;
+        this.isActive = isActive;
     }
 
     public Long getId() {
@@ -68,5 +70,13 @@ public class NoticeListingsPojo {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
     }
 }
